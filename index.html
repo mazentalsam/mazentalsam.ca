@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mazen talsam — software engineer</title>
+  <meta name="description" content="mazen talsam — cs at laurier, founder of csjobs.ca, incoming swe co-op at td. i build backends that don't break.">
+  <meta property="og:title" content="mazen talsam — software engineer">
+  <meta property="og:description" content="founder of csjobs.ca · incoming swe co-op at td · backends that don't break.">
+  <meta property="og:image" content="https://mazentalsam.com/assets/images/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://mazentalsam.com/assets/images/og.png">
+  <meta property="og:url" content="https://mazentalsam.com">
+  <meta name="theme-color" content="#0a0b0d">
+  <!-- real files (not a data: uri) so google search can show the icon; sizes are multiples of 48 as google asks -->
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/terminal.js" defer></script>
+</head>
+<body class="is-loading">
+  <a class="skip" href="#main">skip to content</a>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ===== Loader ===== -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__name"><span>mazen talsam</span></div>
+    <div class="loader__short"><span>©mt</span></div>
+    <div class="loader__count"><span id="loaderCount">0</span>%</div>
+  </div>
+
+  <!-- logo lives outside the fixed header so its blend mode sees the page beneath -->
+  <a href="#top" class="logo" data-scroll aria-label="mazen talsam — home">mazen</a>
+  <header class="header" id="header">
+    <div class="header__right">
+      <button class="pill pill--ghost" data-term-open aria-label="open terminal (ctrl or cmd + k)"><span class="kbd">⌘k</span></button>
+      <a class="pill pill--accent flip" href="assets/Mazen-Talsam-Resume.pdf" download="Mazen-Talsam-Resume.pdf">
+        <span class="flip__inner"><span>resume ↓</span><span aria-hidden="true">download ↓</span></span>
+      </a>
+      <button class="pill pill--dark flip" id="menuBtn" aria-expanded="false" aria-controls="menu">
+        <span class="flip__inner"><span>menu</span><span aria-hidden="true">menu</span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Menu ===== -->
+  <div class="menu-scrim" id="menuScrim"></div>
+  <nav class="menu" id="menu" aria-label="site menu" aria-hidden="true" inert>
+    <button class="menu__close" id="menuClose" aria-label="close menu">✕</button>
+    <div class="menu__group">
+      <p class="menu__title">sitemap</p>
+      <a href="#top" data-scroll>home</a>
+      <a href="#about" data-scroll>about me</a>
+      <a href="#now" data-scroll>right now</a>
+      <a href="#experience" data-scroll>experience</a>
+      <a href="#projects" data-scroll>projects</a>
+      <a href="#shiplog" data-scroll>ship log</a>
+      <a href="#contact" data-scroll>contact</a>
+    </div>
+    <div class="menu__group">
+      <p class="menu__title">selected projects</p>
+      <a href="#p-csjobs" data-scroll>csjobs.ca</a>
+      <a href="#p-ruhly" data-scroll>ruhly</a>
+      <a href="#p-autofill" data-scroll>autofill</a>
+    </div>
+    <div class="menu__group">
+      <p class="menu__title">follow me</p>
+      <a href="https://github.com/mazentalsam" target="_blank" rel="noopener">github</a>
+      <a href="https://www.linkedin.com/in/mazen-talsam" target="_blank" rel="noopener">linkedin</a>
+      <a href="assets/Mazen-Talsam-Resume.pdf" download="Mazen-Talsam-Resume.pdf">resume</a>
+    </div>
+  </nav>
+
+  <!-- ===== Terminal (⌘K / ctrl+K / "/") ===== -->
+  <dialog class="term" id="term" aria-label="terminal">
+    <div class="term__bar">
+      <span class="term__dots"><i></i><i></i><i></i></span>
+      <span>mazen@portfolio: ~</span>
+      <button class="term__x" data-term-close aria-label="close terminal">esc</button>
+    </div>
+    <div class="term__out" id="termOut" aria-live="polite"></div>
+    <form class="term__line" id="termForm" autocomplete="off">
+      <label for="termIn" class="term__prompt">~ $</label>
+      <input id="termIn" spellcheck="false" autocapitalize="off" aria-label="terminal command">
+    </form>
+  </dialog>
+
+  <main id="main">
+    <div class="page" id="top">
+
+      <!-- ===== Hero ===== -->
+      <section class="hero">
+        <div class="hero__top grid">
+          <a class="announce" href="#experience" data-scroll>
+            <img src="assets/images/logos/td.svg" alt="" class="announce__logo">
+            <span><b>incoming swe co-op @ td</b> · jan – apr 2027</span>
+            <span class="announce__arrow" aria-hidden="true">→</span>
+          </a>
+          <h1 class="hero__title">
+            <span class="line"><span>i build backends</span></span>
+            <span class="line"><span class="bold">that don't break.</span></span>
+          </h1>
+          <p class="hero__lede h6">
+            cs at laurier. founder of <a href="https://csjobs.ca" target="_blank" rel="noopener">csjobs.ca</a> (500+ students use it).
+            incoming swe co-op at <strong>td</strong>. i like fast pipelines, clean schemas, and kicking pads after.
+          </p>
+          <div class="hero__cta">
+            <a class="btn btn--primary" href="assets/Mazen-Talsam-Resume.pdf" download="Mazen-Talsam-Resume.pdf">
+              <span class="btn__ball"></span><span class="btn__label">download resume</span>
+              <svg class="btn__arrow btn__arrow--down" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1v8M1 5l4 4 4-4" fill="none" stroke-width="1.4"/></svg>
+            </a>
+            <a class="btn" href="mailto:mazentbusiness@gmail.com">
+              <span class="btn__ball"></span><span class="btn__label">get in touch</span>
+              <svg class="btn__arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5h8M5 1l4 4-4 4" fill="none" stroke-width="1.4"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="hero__window window" id="heroWindow">
+          <canvas id="scene" aria-hidden="true"></canvas>
+          <div class="tiles" id="tiles" aria-hidden="true"></div>
+          <p class="hero__hint">hover to reveal</p>
+        </div>
+        <div class="marquee" id="marquee" aria-hidden="true">
+          <div class="marquee__track">
+            <span>scroll down</span><span class="stroke">press / for terminal</span><span>scroll down</span><span class="stroke">press / for terminal</span><span>scroll down</span><span class="stroke">press / for terminal</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== About ===== -->
+      <section class="about" id="about">
+        <h2 class="about__name reveal">
+          <span class="line"><span>hey, i'm</span></span>
+          <span class="line"><span>mazen talsam.</span></span>
+        </h2>
+        <div class="about__grid grid">
+          <blockquote class="about__quote">
+            <p class="diamond">“ship it, measure it, make it faster&nbsp;—</p>
+            <p class="diamond">then go train.”</p>
+          </blockquote>
+          <figure class="about__photo">
+            <img src="assets/images/mazen.jpg" alt="mazen talsam speaking on stage" loading="lazy">
+          </figure>
+          <div class="about__body">
+            <p class="h6 reveal-fade">i study computer science at wilfrid laurier (class of '28). most of my time goes into the parts users never see: schemas, scrapers, queues, and the apis holding a product together.</p>
+            <p class="h6 reveal-fade">right now i'm tech-leading two pods at homie.ai, running csjobs.ca, and starting at td in january. off the keyboard it's muay thai and soccer.</p>
+            <ul class="stack reveal-fade" aria-label="core stack">
+              <li>python</li><li>fastapi</li><li>flask</li><li>django</li><li>postgresql</li><li>sqlalchemy</li><li>typescript</li><li>react</li><li>supabase</li><li>docker</li>
+            </ul>
+            <a class="btn" href="#now" data-scroll>
+              <span class="btn__ball"></span><span class="btn__label">what i'm up to</span>
+              <svg class="btn__arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5h8M5 1l4 4-4 4" fill="none" stroke-width="1.4"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Now ===== -->
+      <section class="now" id="now">
+        <div class="now__head grid">
+          <h2 class="section-title reveal"><span class="line"><span>right now</span></span></h2>
+          <p class="now__stamp muted">updated oct 2026 · mississauga / waterloo</p>
+        </div>
+        <div class="now__grid grid">
+          <article class="ncard ncard--td reveal-fade">
+            <img src="assets/images/logos/td.svg" alt="td bank logo" class="ncard__logo">
+            <div class="ncard__main">
+              <p class="ncard__k">next up · the big one</p>
+              <h3 class="ncard__t">software engineer co&#8209;op at td</h3>
+              <p class="ncard__d">global technology solutions · toronto · jan – apr 2027</p>
+            </div>
+            <p class="ncard__count"><span id="tdDays">--</span><small>days till january</small></p>
+          </article>
+          <article class="ncard ncard--dark reveal-fade">
+            <p class="ncard__k">building</p>
+            <h3 class="ncard__t">homie.ai</h3>
+            <p class="ncard__d">tech lead for 2 of 4 pods (9 engineers). i own the app ↔ llm agent contract and the postgres rls.</p>
+          </article>
+          <article class="ncard reveal-fade">
+            <p class="ncard__k">shipping</p>
+            <h3 class="ncard__t">csjobs.ca</h3>
+            <p class="ncard__d">new scrapers every week. 640+ career sites, 13 ats platforms, 83% recall and climbing.</p>
+          </article>
+          <button class="ncard ncard--accent ncard--game reveal-fade" id="muaythai" type="button" aria-label="muay thai: tap to throw a strike">
+            <p class="ncard__k">training</p>
+            <h3 class="ncard__t">muay thai</h3>
+            <p class="strike" id="strike" aria-live="polite">tap to throw</p>
+            <p class="ncard__d"><span id="strikeCount">0</span> strikes thrown on this site</p>
+          </button>
+          <button class="ncard ncard--pitch ncard--game reveal-fade" id="soccer" type="button" aria-label="soccer: tap to juggle the ball">
+            <p class="ncard__k">playing</p>
+            <h3 class="ncard__t">soccer</h3>
+            <span class="ball" id="ball" aria-hidden="true"></span>
+            <p class="ncard__d">juggles: <span id="juggles">0</span> · best: <span id="best">0</span> <span class="muted-on-dark">(tap fast)</span></p>
+          </button>
+          <article class="ncard reveal-fade">
+            <p class="ncard__k">learning</p>
+            <h3 class="ncard__t">cloud infra</h3>
+            <p class="ncard__d">aws cloud club at laurier. going deeper on queues, caching, and not paying for idle servers.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===== Experience ===== -->
+      <section class="exp" id="experience">
+        <h2 class="section-title reveal"><span class="line"><span>experience</span></span></h2>
+
+        <article class="job job--featured">
+          <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
+            <div class="badge__top" style="--c:#00a651"><img src="assets/images/logos/td.svg" alt="" class="badge__logo"><span>td bank</span></div>
+            <img src="assets/images/mazen-face.jpg" alt="" class="badge__photo">
+            <p class="badge__name">mazen talsam</p><p class="badge__role">swe co-op</p><div class="badge__code"></div>
+          </div></div></div>
+          <div class="job__text" data-speed="0.12">
+            <p class="h6 muted"><span class="tag-incoming">incoming</span> jan 2027 – apr 2027</p>
+            <h3 class="h4 bold">td — global technology solutions</h3>
+            <p class="job__role">software engineer intern / co-op</p>
+            <p class="job__loc">toronto, ontario</p>
+            <p class="diamond">joining td's global technology solutions org for the winter term.</p>
+          </div>
+        </article>
+
+        <article class="job job--flip">
+          <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
+            <div class="badge__top" style="--c:#1b1b1b"><span>homie.ai</span></div>
+            <span class="badge__mark badge__mark--light badge__mark--small"><img src="assets/images/logos/pma_full.png" alt=""></span>
+            <p class="badge__name">mazen talsam</p><p class="badge__role">tech lead</p><div class="badge__code"></div>
+          </div></div></div>
+          <div class="job__text" data-speed="0.12">
+            <p class="h6 muted">oct 2026 – dec 2026</p>
+            <h3 class="h4 bold">pm accelerator — homie.ai</h3>
+            <p class="job__role">tech lead &amp; full-stack engineer</p>
+            <p class="job__loc">remote</p>
+            <p class="diamond">tech lead for 2 of 4 pods (9 of 17 engineers) on an ai app that furnishes a room to your budget and style.</p>
+            <p class="diamond">own the app–llm agent contract (block schema, tool interface, actions api), frozen in week 3 so 4 pods ship in parallel.</p>
+            <p class="diamond">writing postgres migrations and row-level security on fastapi + sqlalchemy so every user's rooms stay isolated.</p>
+          </div>
+        </article>
+
+        <article class="job">
+          <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
+            <div class="badge__top" style="--c:#d7263d"><span>csjobs.ca</span></div>
+            <span class="badge__mark badge__mark--light"><img src="assets/images/logos/csjobs_ca.png" alt=""></span>
+            <p class="badge__name">mazen talsam</p><p class="badge__role">founder</p><div class="badge__code"></div>
+          </div></div></div>
+          <div class="job__text" data-speed="0.12">
+            <p class="h6 muted">jan 2026 – present</p>
+            <h3 class="h4 bold">csjobs.ca</h3>
+            <p class="job__role">founder &amp; full-stack developer</p>
+            <p class="job__loc">remote</p>
+            <p class="diamond">built and launched a searchable job board used by 500+ students, with paying subscribers, on python/flask.</p>
+            <p class="diamond">cut llm resume tailoring from 45s to 8s at 1.5¢ per run after benchmarking 6 models on an eval set.</p>
+            <p class="diamond">killed intermittent 502s hitting 1 in 4 requests by moving scraping out of the gunicorn worker.</p>
+          </div>
+        </article>
+
+        <article class="job job--flip">
+          <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
+            <div class="badge__top" style="--c:#05070d"><span>vosyn</span></div>
+            <span class="badge__mark"><img src="assets/images/logos/vosyn_ai.png" alt=""></span>
+            <p class="badge__name">mazen talsam</p><p class="badge__role">swe intern</p><div class="badge__code"></div>
+          </div></div></div>
+          <div class="job__text" data-speed="0.12">
+            <p class="h6 muted">jan 2026 – may 2026</p>
+            <h3 class="h4 bold">vosyn</h3>
+            <p class="job__role">software developer intern (ai &amp; cloud systems)</p>
+            <p class="job__loc">etobicoke, ontario</p>
+            <p class="diamond">built the db foundation for a fastapi microservice with 5 sqlalchemy models so every ingestion request stayed traceable.</p>
+            <p class="diamond">provisioned the schema via alembic and scoped db sessions so any environment could be rebuilt.</p>
+            <p class="diamond">prototyped a vimeo download chain (scrape, api, hls/dash) with per-tier fallback so no dead source failed the job.</p>
+          </div>
+        </article>
+
+        <article class="job">
+          <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
+            <div class="badge__top" style="--c:#2b3240"><span>laurier cs</span></div>
+            <span class="badge__mark"><img src="assets/images/logos/lcs.png" alt=""></span>
+            <p class="badge__name">mazen talsam</p><p class="badge__role">developer</p><div class="badge__code"></div>
+          </div></div></div>
+          <div class="job__text" data-speed="0.12">
+            <p class="h6 muted">sep 2024 – jan 2025</p>
+            <h3 class="h4 bold">laurier computing society</h3>
+            <p class="job__role">software developer &amp; first-year rep</p>
+            <p class="job__loc">waterloo, ontario</p>
+            <p class="diamond">shipped full-stack features in python and javascript, replacing manual updates for 3,000+ members.</p>
+            <p class="diamond">added django and flask rest endpoints on postgresql so club data rendered live.</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- ===== Quote ===== -->
+      <section class="quote" id="quote">
+        <div class="quote__sticky">
+          <p class="quote__text" id="quoteText">i build the parts users never see — schemas, scrapers, queues and apis — and make them fast, reliable and boring in the best way. from 502s to 8-second llm pipelines, i turn messy problems into systems that just work.</p>
+        </div>
+      </section>
+
+      <!-- ===== Projects ===== -->
+      <section class="projects" id="projects">
+        <h2 class="section-title reveal"><span class="line"><span>selected projects</span></span></h2>
+        <div class="stackcards">
+          <article class="pcard" id="p-csjobs">
+            <a class="pcard__hit" href="https://csjobs.ca" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"></a>
+            <div class="pcard__bg" style="background-image:url('assets/images/csjobs.jpg')"></div>
+            <div class="pcard__inner grid">
+              <div class="pcard__info">
+                <p class="h6">2026 — present · live</p>
+                <h3 class="h3">csjobs.ca</h3>
+                <p class="pcard__desc">ai-powered job board for canadian cs students. flask, gunicorn, 40+ scrapers, llm resume tailoring.</p>
+                <div class="pcard__links"><a class="plink plink--live" href="https://csjobs.ca" target="_blank" rel="noopener">live site ↗</a><a class="plink" href="https://github.com/mazentalsam/csjobs.ca" target="_blank" rel="noopener">github ↗</a></div>
+              </div>
+              <div class="pcard__media"><img src="assets/images/csjobs.jpg" alt="csjobs.ca on desktop and mobile: every cs co-op in canada, one board" loading="lazy"></div>
+            </div>
+          </article>
+          <article class="pcard" id="p-ruhly">
+            <a class="pcard__hit" href="https://ruhly.app" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"></a>
+            <div class="pcard__bg" style="background-image:url('assets/images/ruhly.jpg')"></div>
+            <div class="pcard__inner grid">
+              <div class="pcard__info">
+                <p class="h6">2026 · co-founder &amp; lead engineer · ruhly.app</p>
+                <h3 class="h3">ruhly</h3>
+                <p class="pcard__desc">one passage, every fajr. daily quran and hadith matched to your mood, in 8 languages with rtl. react, typescript, supabase.</p>
+                <div class="pcard__links"><a class="plink plink--live" href="https://ruhly.app" target="_blank" rel="noopener">live site ↗</a><a class="plink" href="https://github.com/mazentalsam/ruhly-app" target="_blank" rel="noopener">github ↗</a></div>
+              </div>
+              <div class="pcard__media">
+                <img src="assets/images/ruhly.jpg" alt="ruhly app: passage of the day, prayer times and adhan screens" loading="lazy">
+              </div>
+            </div>
+          </article>
+          <article class="pcard" id="p-autofill">
+            <a class="pcard__hit" href="https://github.com/mazentalsam/csjobs-autofill" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"></a>
+            <div class="pcard__bg pcard__bg--autofill"></div>
+            <div class="pcard__inner grid">
+              <div class="pcard__info">
+                <p class="h6">2026 · chrome extension</p>
+                <h3 class="h3">autofill</h3>
+                <p class="pcard__desc">manifest v3 extension that fills applications on 17 hiring platforms, tested by a playwright harness against live postings.</p>
+                <div class="pcard__links"><a class="plink" href="https://github.com/mazentalsam/csjobs-autofill" target="_blank" rel="noopener">github ↗</a></div>
+              </div>
+              <div class="pcard__media cover cover--form" aria-hidden="true">
+                <div class="cover__bar"><i></i><i></i><i></i><span>apply.greenhouse.io</span></div>
+                <div class="cover__field"><label>full name</label><p data-type="mazen talsam"></p></div>
+                <div class="cover__field"><label>email</label><p data-type="mazentbusiness@gmail.com"></p></div>
+                <div class="cover__field"><label>school</label><p data-type="wilfrid laurier university"></p></div>
+                <div class="cover__field"><label>graduation</label><p data-type="2028"></p></div>
+                <span class="cover__chip">⚡ autofilled 4 fields</span>
+              </div>
+            </div>
+          </article>
+        </div>
+        <div class="projects__more">
+          <a class="btn" href="https://github.com/mazentalsam" target="_blank" rel="noopener">
+            <span class="btn__ball"></span><span class="btn__label">all projects</span>
+            <svg class="btn__arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5h8M5 1l4 4-4 4" fill="none" stroke-width="1.4"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- ===== Ship log ===== -->
+      <section class="ship" id="shiplog">
+        <h2 class="section-title reveal"><span class="line"><span>ship log</span></span></h2>
+        <div class="ship__stats grid">
+          <div class="stat reveal-fade"><p class="stat__n"><span data-count="500">0</span>+</p><p class="stat__l">students on csjobs.ca</p></div>
+          <div class="stat reveal-fade"><p class="stat__n"><span data-count="640">0</span>+</p><p class="stat__l">career sites scraped</p></div>
+          <div class="stat reveal-fade"><p class="stat__n"><span data-count="45">0</span>s → <span data-count="8">0</span>s</p><p class="stat__l">llm resume tailoring</p></div>
+          <div class="stat reveal-fade"><p class="stat__n"><span data-count="1224" id="contribTotal">0</span></p><p class="stat__l">github contributions, last year</p></div>
+        </div>
+        <div class="ship__graph window reveal-fade">
+          <div class="graph__head">
+            <p>github.com/mazentalsam</p>
+            <a href="https://github.com/mazentalsam" target="_blank" rel="noopener" class="graph__link">view profile →</a>
+          </div>
+          <div class="graph" id="graph" role="img" aria-label="github contribution graph for the last year"></div>
+          <div class="graph__legend" aria-hidden="true">less <i data-l="0"></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i> more</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===== Footer (revealed under the page) ===== -->
+  <footer class="footer" id="contact">
+    <div class="grid footer__links">
+      <div class="footer__col">
+        <p class="footer__title">sitemap</p>
+        <a class="flink" href="#top" data-scroll><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>home</span></a>
+        <a class="flink" href="#now" data-scroll><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>right now</span></a>
+        <a class="flink" href="#projects" data-scroll><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>projects</span></a>
+        <button class="flink" data-term-open><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>terminal</span></button>
+      </div>
+      <div class="footer__col">
+        <p class="footer__title">follow me</p>
+        <a class="flink" href="https://github.com/mazentalsam" target="_blank" rel="noopener"><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>github</span></a>
+        <a class="flink" href="https://www.linkedin.com/in/mazen-talsam" target="_blank" rel="noopener"><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>linkedin</span></a>
+        <a class="flink" href="assets/Mazen-Talsam-Resume.pdf" download="Mazen-Talsam-Resume.pdf"><svg viewBox="0 0 10 10"><path d="M1 5h8M5 1l4 4-4 4" fill="none"/></svg><span>resume</span></a>
+      </div>
+      <div class="footer__col footer__email">
+        <p class="footer__title">let's build something.</p>
+        <a class="email" href="mailto:mazentbusiness@gmail.com">mazentbusiness@gmail.com
+          <svg class="email__wave" viewBox="0 0 300 10" preserveAspectRatio="none" aria-hidden="true"><path d="M0 5 Q 12.5 0 25 5 T 50 5 T 75 5 T 100 5 T 125 5 T 150 5 T 175 5 T 200 5 T 225 5 T 250 5 T 275 5 T 300 5"/></svg>
+        </a>
+        <p class="muted-light">based in mississauga, on · studying in waterloo, on</p>
+      </div>
+      <div class="footer__col">
+        <p class="footer__title">status</p>
+        <p><span class="muted-light">current time:</span> <span id="clock">--:--</span> et</p>
+        <p><span class="muted-light">availability:</span> <span class="dot"></span>open to summer &amp; fall 2027</p>
+        <p class="muted-light">incoming swe co-op at td · tech lead at homie.ai</p>
+      </div>
+    </div>
+    <div class="grid footer__bottom">
+      <p class="footer__giant" aria-hidden="true">mazen</p>
+      <a href="#top" class="totop" data-scroll aria-label="back to top">
+        <span class="totop__ball"></span>
+        <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9V1M1 5l4-4 4 4" fill="none" stroke-width="1.2"/></svg>
+      </a>
+    </div>
+    <p class="footer__copy">© <span id="year">2026</span> · mazen talsam · built from scratch, no templates</p>
+  </footer>
+</body>
+</html>
