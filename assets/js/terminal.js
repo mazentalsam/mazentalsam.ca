@@ -31,7 +31,7 @@ shipping   csjobs.ca — new scrapers every week
 next       td global technology solutions, jan 2027
 training   muay thai
 playing    soccer
-learning   cloud infra (aws cloud club)`,
+learning   cloud infrastructure (aws cloud club)`,
   experience: () => `2027  td                      swe co-op (incoming)
 2026  pm accelerator/homie.ai tech lead & full-stack
 2026  csjobs.ca               founder
