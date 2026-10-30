@@ -1,41 +1,43 @@
-# mazentalsam.com — personal portfolio
+# mazentalsam.com
 
-Personal site for **Mazen Talsam**: CS at Wilfrid Laurier, founder of [csjobs.ca](https://csjobs.ca), incoming Software Engineer co-op at TD.
+hey, i'm mazen. this is my personal site, built from scratch with no templates and no frameworks.
 
-Live at [mazentalsam.com](https://mazentalsam.com)
+i'm a cs student at wilfrid laurier ('28), the founder of [csjobs.ca](https://csjobs.ca), and an incoming software engineer co-op at td. i mostly build backends: schemas, scrapers, queues, and the apis that hold a product together. when i'm not at the keyboard, i'm doing muay thai or playing soccer.
 
-## Features
+**live at [mazentalsam.com](https://mazentalsam.com)**
 
-- **3D hero**: keycaps printed with my stack drift around under shuffling tiles and move away from the cursor (three.js)
-- **Terminal**: press `/` or `⌘K` for `whoami`, `projects`, `cd`, `resume` and a few hidden commands
-- **Right now**: what I'm building, plus a muay thai strike counter and a soccer juggling game
-- **Experience**: draggable ID badges that swing on a lanyard
-- **Projects**: sticky stacked cards with live-site and GitHub links
-- **Ship log**: a live GitHub contribution graph that marks the current "locked in" streak
-- One-click resume download, a footer revealed under the page, smooth scrolling, and a reduced-motion mode
+## what's on it
 
-## Tech stack
+- **a 3d hero**: keycaps printed with my stack float around and dodge your cursor
+- **a terminal**: press `/` or `⌘k` and try `whoami`, `projects`, or `sudo hire mazen`
+- **right now**: what i'm working on, plus a muay thai card you can tap to throw strikes and a soccer juggling game (your best score saves)
+- **experience**: id badges for every place i've worked, and you can drag them to swing them
+- **projects**: the things i've shipped, each with a live link and its code
+- **ship log**: my github activity, pulled live, with my "locked in" streak marked
+- **my resume**, one click from anywhere on the site
 
-- HTML, CSS and vanilla JavaScript, with no build step
-- [three.js](https://threejs.org) for the hero and [Lenis](https://github.com/darkroomengineering/lenis) for smooth scrolling, both from a CDN
-- Fonts: Space Grotesk, Instrument Serif, JetBrains Mono
+## how it's built
 
-## Run locally
+plain html, css, and javascript, with no build step. three.js runs the 3d hero and lenis handles the smooth scrolling. type is space grotesk, instrument serif, and jetbrains mono.
+
+to run it locally:
 
 ```sh
 python -m http.server 8000
 ```
 
-Then open http://localhost:8000. The 3D hero needs a server; opening the file directly skips it.
+then open http://localhost:8000. the 3d hero needs a server, so opening the file directly skips it.
 
-## Projects featured
+## things i've built
 
-- **[csjobs.ca](https://csjobs.ca)**: AI-powered job board for Canadian CS students ([code](https://github.com/mazentalsam/csjobs.ca))
-- **[Ruhly](https://ruhly.app)**: daily Quran and hadith reflection app ([code](https://github.com/mazentalsam/ruhly-app))
-- **Autofill**: Manifest V3 Chrome extension for job applications ([code](https://github.com/mazentalsam/csjobs-autofill))
+- **[csjobs.ca](https://csjobs.ca)**: an ai-powered job board for canadian cs students. 500+ students use it ([code](https://github.com/mazentalsam/csjobs.ca))
+- **[ruhly](https://ruhly.app)**: one passage, every fajr. a daily quran and hadith reflection app ([code](https://github.com/mazentalsam/ruhly-app))
+- **autofill**: a chrome extension that fills job applications on 17 hiring platforms ([code](https://github.com/mazentalsam/csjobs-autofill))
 
-## Contact
+## say hi
 
-- Email: mazentbusiness@gmail.com
-- GitHub: [github.com/mazentalsam](https://github.com/mazentalsam)
-- LinkedIn: [linkedin.com/in/mazen-talsam](https://www.linkedin.com/in/mazen-talsam)
+- mazentbusiness@gmail.com
+- [github.com/mazentalsam](https://github.com/mazentalsam)
+- [linkedin.com/in/mazen-talsam](https://www.linkedin.com/in/mazen-talsam)
+
+i'm open to summer and fall 2027 internships.
