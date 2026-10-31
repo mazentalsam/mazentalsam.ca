@@ -200,7 +200,6 @@ section { padding-top: calc(var(--gap) * 2); }
 .hero__top { align-items: end; padding-bottom: var(--gap); }
 .hero__title { grid-column: 1 / 10; font-size: 4.7vw; line-height: 1.12; font-weight: 400; letter-spacing: -.03em; }
 .hero__lede { grid-column: 11 / 17; color: rgba(238,241,246,.82); }
-.hero__lede strong { color: var(--ink); }
 .hero__cta { grid-column: 11 / 17; display: flex; flex-wrap: wrap; gap: calc(var(--gap) * .5); margin-top: var(--gap); }
 .btn.btn--primary { background: var(--accent); color: var(--black); box-shadow: 0 0 0 0 rgba(61,123,255,.5); animation: glow 2.6s ease-out infinite; }
 .btn.btn--primary .btn__ball { background: var(--bone); }
@@ -211,7 +210,7 @@ section { padding-top: calc(var(--gap) * 2); }
 /* csjobs.ca in its own red (brightened a touch to read on black) */
 .hero__lede a[href*="csjobs.ca"] { color: #ef4b52; text-decoration-color: #ef4b52; font-weight: 600; transition: color .3s; }
 .hero__lede a[href*="csjobs.ca"]:hover { color: #ff6b70; }
-.hero__lede strong { font-weight: 700; }
+.hero__lede strong { font-weight: 700; color: #1fd17a; } /* td, in td green (brightened for black) */
 /* clip-path instead of radius+overflow: avoids a dark AA fringe where paper tiles meet the canvas layer */
 .hero__window { flex: 1 1 auto; min-height: 0; margin: 0 var(--m); border-radius: 0; overflow: visible; clip-path: inset(0 round var(--gap)); background: #e4e9f2; }
 @media (max-width: 812px) { .hero__window { clip-path: inset(0 round calc(var(--gap) * .6)); } }

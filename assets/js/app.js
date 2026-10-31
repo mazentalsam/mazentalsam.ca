@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031143950').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031144111').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
