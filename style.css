@@ -69,7 +69,8 @@ ul { list-style: none; }
 .diamond::before { content: "◆"; position: absolute; left: 0; top: 0; color: var(--accent); font-style: normal; font-size: .9em; line-height: 1.55; }
 .job .diamond::before { color: var(--jb, var(--accent)); }
 .edu { font-size: clamp(13px, .95vw, 17px); line-height: 1.55; color: var(--muted); }
-.edu b { color: var(--ink); font-weight: 600; }
+.edu b { color: #a98bea; font-weight: 600; } /* laurier purple + gold, purple lightened to read on black */
+.edu__gold { color: #f2a900; }
 
 /* ===== Grain ===== */
 .grain {
