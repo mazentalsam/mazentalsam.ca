@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031144111').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031144217').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -233,7 +233,7 @@ if (tdPhase === 'before') {
 fetch('https://api.github.com/users/mazentalsam/repos?sort=pushed&per_page=10')
   .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
   .then((repos) => {
-    const site = repos.find((r) => r.name === 'mazentalsam.com');
+    const site = repos.find((r) => r.name === 'mazentalsam.ca');
     if (site) {
       $('#nowStamp').textContent = 'updated ' + new Date(site.pushed_at)
         .toLocaleDateString('en-CA', { month: 'short', year: 'numeric', timeZone: 'America/Toronto' }).toLowerCase().replace('.', '');
