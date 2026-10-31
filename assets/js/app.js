@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261030223458').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031141000').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -326,20 +326,81 @@ const STRIKE_SFX = {
   jab: [150, 2600, 0.55], cross: [125, 2200, 0.75], hook: [115, 2000, 0.8], elbow: [170, 3400, 0.7],
   teep: [85, 1000, 0.85], knee: [75, 1200, 0.95], roundhouse: [62, 1500, 1], 'switch kick': [58, 1600, 1],
 };
+const HIT_MS = 100; // glove/shin travels this long before it lands; sound + flash are timed to it
+// air cut by the glove or shin: band of noise sweeping up in pitch, peaking right at contact
+function whoosh(ctx, t, end, vol) {
+  const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+  src.buffer = noise; src.loop = true;
+  f.type = 'bandpass'; f.Q.value = 1.1;
+  f.frequency.setValueAtTime(450, t); f.frequency.exponentialRampToValueAtTime(2600, end);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, end - 0.008); g.gain.exponentialRampToValueAtTime(0.0001, end + 0.03);
+  src.connect(f).connect(g).connect(ctx.master); src.start(t, Math.random() * 0.5); src.stop(end + 0.05);
+}
+// the bag's chain rattling after a hit
+function rattle(ctx, t, vol, n = 3) {
+  for (let i = 0; i < n; i++) {
+    const o = ctx.createOscillator(), g = ctx.createGain(), at = t + i * 0.035 + Math.random() * 0.02;
+    o.type = 'triangle'; o.frequency.value = jitter(3000 + (i % 3) * 700, 0.1);
+    g.gain.setValueAtTime(vol, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09);
+    o.connect(g).connect(ctx.master); o.start(at); o.stop(at + 0.1);
+  }
+}
 function playStrike(name) {
   const ctx = audio(); if (!ctx) return;
   const [body, slap, p] = STRIKE_SFX[name];
-  const t = ctx.currentTime;
-  burst(ctx, t, 'bandpass', jitter(slap), 0.9, 0.07, 0.9 * p);    // leather crack on the pad
-  thump(ctx, t, jitter(body * 2.2), body * 0.55, 0.2, 1.1 * p);  // pad body
-  burst(ctx, t, 'lowpass', 500, 0.7, 0.14, 0.45 * p);             // air whoomph
-  if (body < 90) thump(ctx, t + 0.012, body * 1.2, body * 0.5, 0.28, 0.6 * p); // kicks land deeper
+  const t = ctx.currentTime, hit = t + HIT_MS / 1000;
+  burst(ctx, t, 'highpass', 5500, 0.7, 0.1, 0.18);                   // the fighter's "tss" exhale
+  whoosh(ctx, t, hit, 0.32 * p);                                      // glove / shin through the air
+  burst(ctx, hit, 'highpass', 2800, 0.7, 0.012, 1.1 * p);             // skin-on-leather snap
+  burst(ctx, hit, 'bandpass', jitter(slap), 0.9, 0.06, 0.7 * p);      // leather crack
+  thump(ctx, hit, jitter(body * 2.2), body * 0.55, 0.22, 1.1 * p);    // pad body
+  burst(ctx, hit, 'lowpass', 380, 0.7, 0.2, 0.55 * p);                // heavy bag thud
+  if (body < 90) thump(ctx, hit + 0.012, body * 1.2, body * 0.5, 0.3, 0.6 * p); // kicks land deeper
+  rattle(ctx, hit + 0.06, 0.05 * p);
+}
+function playSuper(p, hitDelay) {
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime, hit = t + hitDelay;
+  burst(ctx, t, 'highpass', 5000, 0.7, 0.16, 0.3);                    // big exhale
+  whoosh(ctx, t, t + hitDelay * 0.45, 0.25);                          // spin wind-up...
+  whoosh(ctx, t + hitDelay * 0.4, hit, 0.6);                          // ...and the kick coming through
+  burst(ctx, hit, 'highpass', 2500, 0.7, 0.02, 1.4);
+  burst(ctx, hit, 'bandpass', 1500, 0.8, 0.12, 1.1);
+  thump(ctx, hit, 120, 30, 0.9 + 0.5 * p, 1.6);                       // boom
+  thump(ctx, hit + 0.015, 62, 26, 1.1 + 0.6 * p, 1.1);
+  burst(ctx, hit, 'lowpass', 220, 0.7, 0.7, 0.9);
+  rattle(ctx, hit + 0.08, 0.09, 8);                                   // chain going wild
 }
 function playTouch() { // foot on ball: hollow bonk + a little leather tick
   const ctx = audio(); if (!ctx) return;
   const t = ctx.currentTime;
   thump(ctx, t, jitter(360, 0.06), 190, 0.13, 0.7);
   burst(ctx, t, 'bandpass', 1800, 2, 0.035, 0.35);
+}
+function playShot(p) { // laces through the ball
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime;
+  thump(ctx, t, 280, 90, 0.2, 0.9 + 0.4 * p);
+  burst(ctx, t, 'bandpass', 1400, 1.4, 0.05, 0.7);
+  whoosh(ctx, t + 0.02, t + 0.25, 0.15 * p);
+}
+function playNet() { // ball hitting the net
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime;
+  burst(ctx, t, 'highpass', 2200, 0.7, 0.35, 0.3);
+  thump(ctx, t, 140, 70, 0.18, 0.5);
+}
+function playCheer(vol = 0.5) { // crowd roar: overlapping bands of noise swelling in and fading out
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime;
+  [[650, 0.9], [1300, 1.1], [2400, 0.8]].forEach(([f, q]) => {
+    const src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = noise; src.loop = true;
+    bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.22);
+    g.gain.setValueAtTime(vol, t + 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.9);
+    src.connect(bp).connect(g).connect(ctx.master); src.start(t, Math.random()); src.stop(t + 2);
+  });
 }
 function playDrop() { // ball hits the ground and dribbles to a stop
   const ctx = audio(); if (!ctx) return;
@@ -350,8 +411,44 @@ function playDrop() { // ball hits the ground and dribbles to a stop
   });
 }
 
-/* ===== Muay thai card: tap to throw strikes ===== */
+/* ===== tap vs hold on the game cards =====
+   quick press -> onTap. held past `min` ms -> onHold(level) every frame, onRelease(level) on let go.
+   level runs 0..1 and is full at `full` ms. keyboard enter/space counts as a tap. */
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+function holdable(el, { onTap, onHold, onRelease, onCancel, min = 280, full = 1200 }) {
+  let t0 = 0, raf = 0;
+  const level = () => clamp((performance.now() - t0 - min) / (full - min), 0, 1);
+  const tick = () => {
+    if (performance.now() - t0 > min) {
+      const p = level();
+      el.classList.add('charging'); el.classList.toggle('full', p >= 1);
+      el.style.setProperty('--charge', p);
+      onHold?.(p);
+    }
+    raf = requestAnimationFrame(tick);
+  };
+  el.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    t0 = performance.now(); raf = requestAnimationFrame(tick);
+  });
+  const end = (e) => {
+    if (!t0) return;
+    cancelAnimationFrame(raf);
+    const held = performance.now() - t0, p = level();
+    t0 = 0;
+    el.classList.remove('charging', 'full'); el.style.setProperty('--charge', 0);
+    if (e.type !== 'pointerup') { if (held > min) onCancel?.(); return; } // dragged off / scrolled away
+    if (held < min) onTap(); else onRelease(p);
+  };
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach((type) => el.addEventListener(type, end));
+  el.addEventListener('click', (e) => { if (e.detail === 0) onTap(); });
+  el.addEventListener('contextmenu', (e) => e.preventDefault()); // phones: no long-press menu
+}
+
+/* ===== Muay thai card: tap to strike, hold to charge a super ===== */
 const STRIKES = ['jab', 'cross', 'teep', 'roundhouse', 'elbow', 'knee', 'hook', 'switch kick'];
+const SUPERS = ['flying knee', 'superman punch', 'spinning elbow'];
 const strikeEl = $('#strike');
 const strikeCount = $('#strikeCount');
 let strikes = store.get('mt-strikes');
@@ -361,43 +458,91 @@ const STRIKE_PATHS = {
   jab: 'M10 72 L110 72', cross: 'M0 84 L110 80', hook: 'M70 14 Q132 8 112 74', elbow: 'M76 36 L112 78',
   teep: 'M0 134 L110 128', knee: 'M66 198 Q90 160 112 118',
   roundhouse: 'M0 194 Q36 88 112 102', 'switch kick': 'M12 198 Q58 78 112 96',
+  'spinning back kick': 'M0 150 Q10 0 112 92', 'flying knee': 'M30 200 Q40 60 112 84',
+  'superman punch': 'M0 20 Q60 30 112 70', 'spinning elbow': 'M60 0 Q150 -10 112 80',
 };
-const trail = $('#trail'), bag = $('#bag'), impact = $('#impact'), impactAt = $('#impactAt'), comboEl = $('#combo');
+// what you see flying in: glove for punches, arm for elbows, leg for knees and kicks
+const LIMB = { jab: '🥊', cross: '🥊', hook: '🥊', 'superman punch': '🥊', elbow: '💪', 'spinning elbow': '💪' };
+const trail = $('#trail'), bag = $('#bag'), impact = $('#impact'), impactAt = $('#impactAt');
+const shock = $('#shock'), limb = $('#limb'), comboEl = $('#combo'), mtCard = $('#muaythai');
 let combo = 0, lastStrikeAt = 0;
-function showStrike(name) {
-  if (reduced) return;
-  const power = STRIKE_SFX[name][2];
-  trail.setAttribute('d', STRIKE_PATHS[name]);
-  const len = trail.getTotalLength(), end = trail.getPointAtLength(len);
-  trail.style.strokeDasharray = len;
-  trail.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: 0.25 }, { strokeDashoffset: 0, opacity: 1, offset: 0.6 }, { strokeDashoffset: 0, opacity: 0 }],
-    { duration: 620, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
-  impactAt.setAttribute('transform', `translate(${end.x} ${end.y})`);
-  impact.animate([{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(.2)', opacity: 1, offset: 0.25 }, { transform: `scale(${1 + power * 0.6})`, opacity: 0 }],
-    { duration: 420, easing: 'ease-out', fill: 'forwards' });
-  // hit from the left pushes the bag right, then it swings back and settles
-  const a = -power * 16;
-  bag.animate([0, a, -a * 0.55, a * 0.3, -a * 0.12, 0].map((deg) => ({ transform: `rotate(${deg}deg)` })),
-    { duration: 700 + power * 500, delay: 110, easing: 'ease-in-out' });
+
+// moves the glove/leg along the strike path; returns the point it lands on
+function flyLimb(name, travelMs, scale) {
+  const len = trail.getTotalLength();
+  const frames = [];
+  for (let i = 0; i <= 8; i++) {
+    const a = trail.getPointAtLength((len * i) / 8), b = trail.getPointAtLength(Math.min(len, (len * i) / 8 + 1));
+    const ang = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+    frames.push({ transform: `translate(${a.x}px, ${a.y}px) rotate(${ang}deg) scale(${scale})`, opacity: 1, offset: (i / 8) * 0.4 });
+  }
+  const last = frames[8].transform;
+  frames.push({ transform: last, opacity: 1, offset: 0.7 }, { transform: last, opacity: 0, offset: 1 });
+  limb.textContent = LIMB[name] || '🦵';
+  limb.animate(frames, { duration: travelMs / 0.4, fill: 'forwards' });
+  return trail.getPointAtLength(len);
 }
-$('#muaythai').addEventListener('click', (e) => {
-  const strike = STRIKES[Math.floor(Math.random() * STRIKES.length)];
+function showStrike(name, superP = 0) {
+  if (reduced) return;
+  const sup = superP > 0;
+  const hitAt = sup ? HIT_MS * 2.2 : HIT_MS;
+  const power = sup ? 1 + superP : STRIKE_SFX[name][2];
+  trail.setAttribute('d', STRIKE_PATHS[name]);
+  trail.classList.toggle('super', sup);
+  const len = trail.getTotalLength();
+  trail.style.strokeDasharray = len;
+  trail.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: 0.2 }, { strokeDashoffset: 0, opacity: 1, offset: 0.55 }, { strokeDashoffset: 0, opacity: 0 }],
+    { duration: hitAt * 5, fill: 'forwards' });
+  const end = flyLimb(name, hitAt, sup ? 1.7 : 1);
+  impactAt.setAttribute('transform', `translate(${end.x} ${end.y})`);
+  impact.animate([{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(.3)', opacity: 1 }, { transform: `scale(${1 + power * 0.6})`, opacity: 0 }],
+    { duration: 340, delay: hitAt, easing: 'ease-out', fill: 'both' });
+  if (sup) shock.animate([{ transform: 'scale(.3)', opacity: 1 }, { transform: `scale(${4 + superP * 5})`, opacity: 0 }],
+    { duration: 750, delay: hitAt, easing: 'cubic-bezier(.1,.7,.3,1)', fill: 'both' });
+  // hit from the left pushes the bag right, then it swings back and settles
+  const a = sup ? -(30 + 55 * superP) : -power * 16;
+  const swing = sup ? [0, a, -a * 0.6, a * 0.4, -a * 0.25, a * 0.12, -a * 0.05, 0] : [0, a, -a * 0.55, a * 0.3, -a * 0.12, 0];
+  bag.animate(swing.map((deg) => ({ transform: `rotate(${deg}deg)` })),
+    { duration: sup ? 2200 + 900 * superP : 700 + power * 500, delay: hitAt, easing: 'ease-in-out' });
+}
+function countStrike(label) {
+  strikeEl.textContent = label;
+  restart(strikeEl, 'hit');
+  strikeCount.textContent = ++strikes;
+  store.set('mt-strikes', strikes);
+}
+function tapStrike() {
+  const strike = pick(STRIKES);
   playStrike(strike);
   showStrike(strike);
   const now = performance.now();
   combo = now - lastStrikeAt < 900 ? combo + 1 : 1;
   lastStrikeAt = now;
   comboEl.textContent = combo > 1 ? `${combo}x combo` : '';
-  comboEl.classList.remove('pop'); void comboEl.offsetWidth; if (combo > 1) comboEl.classList.add('pop');
-  strikeEl.textContent = strike + '!';
-  strikeEl.classList.remove('hit'); void strikeEl.offsetWidth; strikeEl.classList.add('hit');
-  e.currentTarget.classList.remove('shake'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('shake');
-  strikeCount.textContent = ++strikes;
-  store.set('mt-strikes', strikes);
+  if (combo > 1) restart(comboEl, 'pop');
+  setTimeout(() => restart(mtCard, 'shake'), HIT_MS);
+  countStrike(strike + '!');
+}
+function superStrike(p) {
+  const name = p >= 0.95 ? 'spinning back kick' : pick(SUPERS);
+  const hitAt = HIT_MS * 2.2;
+  playSuper(p, hitAt / 1000);
+  showStrike(name, p);
+  combo = 0;
+  comboEl.textContent = `${Math.round(p * 100)}% power`;
+  restart(comboEl, 'pop');
+  setTimeout(() => restart(mtCard, 'jolt'), hitAt);
+  countStrike(name + '!');
+}
+holdable(mtCard, {
+  onTap: tapStrike,
+  onHold: (p) => { const label = p >= 1 ? 'release!' : 'charging…'; if (strikeEl.textContent !== label) strikeEl.textContent = label; },
+  onRelease: superStrike,
+  onCancel: () => { strikeEl.textContent = 'tap to throw'; },
 });
 
 /* ===== Soccer card: keep the ball up ===== */
-const ball = { el: $('#ball'), x: 0, vx: 0, y: 0, vy: 0, rot: 0, peak: 0, airborne: false };
+const ball = { el: $('#ball'), x: 0, vx: 0, y: 0, vy: 0, rot: 0, peak: 0, airborne: false, shooting: false };
 const jugglesEl = $('#juggles');
 const bestEl = $('#best');
 const GRAVITY = 980;
@@ -406,8 +551,8 @@ let best = store.get('mt-juggle-best');
 bestEl.textContent = best;
 // one touch per arc: any time it's falling through the lower 90% of its height
 const canTouch = () => !ball.airborne || (ball.vy > 0 && ball.y > ball.peak * 0.9);
-$('#soccer').addEventListener('click', () => {
-  if (!canTouch()) return;
+function juggle() {
+  if (ball.shooting || !canTouch()) return;
   playTouch();
   ball.vy = -520 - Math.random() * 60;
   ball.peak = -(ball.vy * ball.vy) / (2 * GRAVITY);
@@ -419,9 +564,55 @@ $('#soccer').addEventListener('click', () => {
   ball.airborne = true;
   jugglesEl.textContent = ++juggles;
   if (juggles > best) { best = juggles; bestEl.textContent = best; store.set('mt-juggle-best', best); }
+  if (juggles % 10 === 0) { shout(`🔥 ${juggles}!`); playCheer(0.25); }
+}
+
+/* hold to shoot: soft = rolls short, decent = goal, full power = top corner */
+const goalEl = $('#goal'), shoutEl = $('#shout'), goalsEl = $('#goals');
+let goals = store.get('mt-goals');
+goalsEl.textContent = goals;
+function shout(text) { shoutEl.textContent = text; restart(shoutEl, 'go'); }
+function shoot(p) {
+  ball.shooting = true; ball.airborne = false;
+  ball.el.classList.remove('ready');
+  juggles = 0; jugglesEl.textContent = 0;
+  goalEl.classList.add('show');
+  playShot(p);
+  // ball's resting spot on screen = where it is now minus its current offset
+  const from = { x: ball.x, y: ball.y * 0.45 };
+  const b = ball.el.getBoundingClientRect(), g = goalEl.getBoundingClientRect();
+  const homeX = b.left + b.width / 2 - from.x, homeY = b.top + b.height / 2 - from.y;
+  const scored = p >= 0.35, bins = p >= 0.95;
+  const to = scored
+    ? { x: g.left + g.width * 0.5 - homeX, y: g.top + g.height * (bins ? 0.22 : 0.45 + Math.random() * 0.3) - homeY }
+    : { x: (g.left - homeX) * 0.5, y: 0 };
+  const peakY = Math.min(from.y, to.y) - (scored ? 30 + 50 * p : 6);
+  const at = (x, y, spin) => ({ transform: `translate(${x}px, ${y}px) rotate(${ball.rot + spin}deg)` });
+  const shot = ball.el.animate([at(from.x, from.y, 0), at((from.x + to.x) / 2, peakY, 400), at(to.x, to.y, 800)],
+    { duration: reduced ? 1 : scored ? 560 - 220 * p : 950, easing: 'cubic-bezier(.25,.6,.4,1)', fill: 'forwards' });
+  shot.onfinish = () => {
+    if (scored) {
+      restart(goalEl, 'scored'); playNet(); playCheer(bins ? 0.7 : 0.5);
+      goalsEl.textContent = ++goals; store.set('mt-goals', goals);
+      shout(bins ? 'top bins!' : 'goal!');
+    } else shout('too soft');
+    setTimeout(() => { // reset: ball drops back in at its spot
+      shot.cancel();
+      Object.assign(ball, { x: 0, y: 0, vx: 0, vy: 0, rot: 0, shooting: false });
+      ball.el.style.setProperty('--jx', '0px'); ball.el.style.setProperty('--by', '0px'); ball.el.style.setProperty('--br', '0deg');
+      ball.el.animate([{ opacity: 0, transform: 'translateY(-60px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.3,1.5,.5,1)' });
+      goalEl.classList.remove('show');
+    }, 1100);
+  };
+}
+holdable($('#soccer'), {
+  onTap: juggle,
+  onHold: () => { if (!ball.shooting) goalEl.classList.add('show'); },
+  onRelease: (p) => { if (!ball.shooting) shoot(p); },
+  onCancel: () => { if (!ball.shooting) goalEl.classList.remove('show'); },
 });
 function stepBall(dt) {
-  if (!ball.airborne) return;
+  if (!ball.airborne || ball.shooting) return;
   ball.vy += GRAVITY * dt;
   ball.y += ball.vy * dt;
   ball.x += ball.vx * dt;
@@ -481,7 +672,7 @@ fetch('https://github-contributions-api.jogruber.de/v4/mazentalsam?y=last')
       const sum = contributions.slice(first).reduce((n, c) => n + c.count, 0);
       const since = new Date(contributions[first].date + 'T00:00').toLocaleDateString('en-CA', { month: 'short', year: 'numeric' }).toLowerCase().replace('.', '');
       graph.classList.add('has-era');
-      graph.insertAdjacentHTML('beforeend', `<div class="era-mark"><span>locked in since ${since} · ${sum.toLocaleString('en-CA')} contributions · ${active.length - start} weeks straight</span></div>`);
+      graph.insertAdjacentHTML('beforeend', `<div class="era-mark"><span class="long">locked in since ${since} · ${sum.toLocaleString('en-CA')} contributions · ${active.length - start} weeks straight</span><span class="short">locked in · ${active.length - start} weeks</span></div>`);
       const mark = $('.era-mark', graph);
       const firstCell = $('i.era', graph);
       const placeMark = () => {
