@@ -457,7 +457,7 @@ section { padding-top: calc(var(--gap) * 2); }
 
 /* td callouts elsewhere */
 .announce {
-  grid-column: 1 / 17; justify-self: start; margin-bottom: calc(var(--gap) * .8);
+  grid-column: 1 / -1; justify-self: start; margin-bottom: calc(var(--gap) * .8); /* -1 = last column on any grid (16 desktop, 6 mobile) */
   display: inline-flex; align-items: center; gap: .7em; padding: .4em 1em .4em .4em; border-radius: 99px;
   background: rgba(0,166,81,.12); box-shadow: inset 0 0 0 1px rgba(0,166,81,.45); color: var(--ink);
   font-size: clamp(13px, .95vw, 17px); transition: background .3s;
