@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031141741').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031142043').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -379,6 +379,26 @@ function playCheer(vol = 0.5) { // crowd roar: overlapping bands of noise swelli
     src.connect(bp).connect(g).connect(ctx.master); src.start(t, Math.random()); src.stop(t + 2);
   });
 }
+function playGroan(vol = 0.5) { // crowd "ohhh": many voices sliding down in pitch through an "oh" vowel, plus crowd noise
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime, end = t + 1.5;
+  const vowel = ctx.createBiquadFilter(); vowel.type = 'bandpass'; vowel.frequency.value = 520; vowel.Q.value = 1.4;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol * 0.11, t + 0.18);
+  g.gain.setValueAtTime(vol * 0.11, t + 0.55); g.gain.exponentialRampToValueAtTime(0.0001, end);
+  vowel.connect(g).connect(ctx.master);
+  for (let i = 0; i < 10; i++) {
+    const o = ctx.createOscillator(), f = 140 + Math.random() * 140;
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.7, end); // the "ohhh" falls
+    o.connect(vowel); o.start(t + Math.random() * 0.08); o.stop(end);
+  }
+  const src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), ng = ctx.createGain();
+  src.buffer = noise; src.loop = true; bp.type = 'bandpass'; bp.Q.value = 0.8;
+  bp.frequency.setValueAtTime(1100, t); bp.frequency.exponentialRampToValueAtTime(500, end);
+  ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(vol * 0.35, t + 0.2); ng.gain.exponentialRampToValueAtTime(0.0001, end);
+  src.connect(bp).connect(ng).connect(ctx.master); src.start(t, Math.random()); src.stop(end);
+}
 function playDrop() { // ball hits the ground and dribbles to a stop
   const ctx = audio(); if (!ctx) return;
   const t = ctx.currentTime;
@@ -592,6 +612,7 @@ function shoot(p) {
       shout(outcome === 'bins' ? 'top bins!' : 'goal!');
     } else {
       shout({ soft: 'too soft', post: 'off the post!', over: 'over the bar!' }[outcome]);
+      playGroan(outcome === 'soft' ? 0.3 : 0.6);
     }
     setTimeout(() => { // reset: ball drops back in at its spot
       shot.cancel();
