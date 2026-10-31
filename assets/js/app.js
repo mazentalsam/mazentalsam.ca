@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031141000').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031141205').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -336,15 +336,6 @@ function whoosh(ctx, t, end, vol) {
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, end - 0.008); g.gain.exponentialRampToValueAtTime(0.0001, end + 0.03);
   src.connect(f).connect(g).connect(ctx.master); src.start(t, Math.random() * 0.5); src.stop(end + 0.05);
 }
-// the bag's chain rattling after a hit
-function rattle(ctx, t, vol, n = 3) {
-  for (let i = 0; i < n; i++) {
-    const o = ctx.createOscillator(), g = ctx.createGain(), at = t + i * 0.035 + Math.random() * 0.02;
-    o.type = 'triangle'; o.frequency.value = jitter(3000 + (i % 3) * 700, 0.1);
-    g.gain.setValueAtTime(vol, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09);
-    o.connect(g).connect(ctx.master); o.start(at); o.stop(at + 0.1);
-  }
-}
 function playStrike(name) {
   const ctx = audio(); if (!ctx) return;
   const [body, slap, p] = STRIKE_SFX[name];
@@ -356,7 +347,6 @@ function playStrike(name) {
   thump(ctx, hit, jitter(body * 2.2), body * 0.55, 0.22, 1.1 * p);    // pad body
   burst(ctx, hit, 'lowpass', 380, 0.7, 0.2, 0.55 * p);                // heavy bag thud
   if (body < 90) thump(ctx, hit + 0.012, body * 1.2, body * 0.5, 0.3, 0.6 * p); // kicks land deeper
-  rattle(ctx, hit + 0.06, 0.05 * p);
 }
 function playSuper(p, hitDelay) {
   const ctx = audio(); if (!ctx) return;
@@ -369,7 +359,6 @@ function playSuper(p, hitDelay) {
   thump(ctx, hit, 120, 30, 0.9 + 0.5 * p, 1.6);                       // boom
   thump(ctx, hit + 0.015, 62, 26, 1.1 + 0.6 * p, 1.1);
   burst(ctx, hit, 'lowpass', 220, 0.7, 0.7, 0.9);
-  rattle(ctx, hit + 0.08, 0.09, 8);                                   // chain going wild
 }
 function playTouch() { // foot on ball: hollow bonk + a little leather tick
   const ctx = audio(); if (!ctx) return;
