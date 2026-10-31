@@ -631,4 +631,11 @@ section { padding-top: calc(var(--gap) * 2); }
   .quote { height: auto; }
   .quote__sticky { position: static; height: auto; padding: calc(var(--gap) * 6) 0; }
 }
-.brand-mark { display: inline-block; height: .78em; width: auto; margin: 0 .22em -.04em 0; }
+.brand-mark { display: inline-block; height: .78em; width: auto; margin: 0 .22em -.04em 0; transition: filter .5s var(--ease); }
+/* ruhly hover: the lamp's light, white fading to grey, with a soft glow */
+#p-ruhly:hover .pcard__info .h3 {
+  background: linear-gradient(180deg, #ffffff 35%, #8e8e8e 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 1.2vw rgba(255,255,255,.35));
+}
+#p-ruhly:hover .brand-mark { filter: drop-shadow(0 0 .8vw rgba(255,255,255,.7)); }
