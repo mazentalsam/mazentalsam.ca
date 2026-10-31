@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031142043').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031142314').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -379,6 +379,35 @@ function playCheer(vol = 0.5) { // crowd roar: overlapping bands of noise swelli
     src.connect(bp).connect(g).connect(ctx.master); src.start(t, Math.random()); src.stop(t + 2);
   });
 }
+// a crowd singing one note: many slightly-off voices through a vowel filter ("o" is darker, "lé" brighter)
+function crowdNote(ctx, t, freq, dur, vol, bright) {
+  const vowel = ctx.createBiquadFilter(), g = ctx.createGain();
+  vowel.type = 'bandpass'; vowel.frequency.value = bright ? 1500 : 600; vowel.Q.value = 1.2;
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.05);
+  g.gain.setValueAtTime(vol, t + dur * 0.75); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  vowel.connect(g).connect(ctx.master);
+  for (let i = 0; i < 12; i++) {
+    const o = ctx.createOscillator();
+    o.type = 'sawtooth';
+    o.frequency.value = freq * (1 + (Math.random() * 2 - 1) * 0.025) * (i % 3 === 0 ? 2 : 1); // some sing an octave up
+    o.connect(vowel); o.start(t + Math.random() * 0.04); o.stop(t + dur + 0.02);
+  }
+}
+function crowdClap(ctx, t, vol) { // a few hundred hands, slightly out of sync
+  for (let i = 0; i < 4; i++) burst(ctx, t + Math.random() * 0.02, 'bandpass', 1200 + Math.random() * 900, 0.8, 0.06, vol);
+}
+let chantUntil = 0;
+function playChant(vol = 0.1) { // "olé, olé olé olé" + claps
+  const ctx = audio(); if (!ctx) return;
+  if (ctx.currentTime < chantUntil) return; // one chant at a time
+  const t0 = ctx.currentTime + 0.7, beat = 0.3; // starts as the first roar peaks
+  const E = 165, G = 196, A = 220;
+  // [beat offset, length in beats, pitch, bright vowel]
+  const tune = [[0, 0.8, E, 0], [1, 1.8, G, 1], [3, 0.8, E, 0], [4, 0.8, G, 1], [5, 0.8, E, 0], [6, 0.8, G, 1], [7, 0.8, A, 0], [8, 2.4, G, 1]];
+  tune.forEach(([at, len, f, bright]) => crowdNote(ctx, t0 + at * beat, f, len * beat, vol, bright));
+  [11, 12, 13, 13.5, 14].forEach((at) => crowdClap(ctx, t0 + at * beat, 0.35)); // clap, clap, clap-clap-clap
+  chantUntil = t0 + 14.5 * beat;
+}
 function playGroan(vol = 0.5) { // crowd "ohhh": many voices sliding down in pitch through an "oh" vowel, plus crowd noise
   const ctx = audio(); if (!ctx) return;
   const t = ctx.currentTime, end = t + 1.5;
@@ -607,7 +636,8 @@ function shoot(p) {
   if (outcome === 'post') setTimeout(playPost, dur * (2 / 3));
   shot.onfinish = () => {
     if (inGoal) {
-      restart(goalEl, 'scored'); playNet(); playCheer(outcome === 'bins' ? 0.7 : 0.5);
+      restart(goalEl, 'scored'); playNet(); playCheer(outcome === 'bins' ? 0.42 : 0.32);
+      playChant(outcome === 'bins' ? 0.12 : 0.09);
       goalsEl.textContent = ++goals; store.set('mt-goals', goals);
       shout(outcome === 'bins' ? 'top bins!' : 'goal!');
     } else {
