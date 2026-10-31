@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031141205').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031141741').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -229,15 +229,7 @@ if (tdPhase === 'before') {
   $('#tdDaysLabel').textContent = `of ${daysBetween(TD.start, TD.end) + 1} at td`;
 }
 
-/* ===== "shipping" card + "updated" stamp, live from github ===== */
-const timeAgo = (iso) => {
-  const s = (Date.now() - Date.parse(iso)) / 1000;
-  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-  for (const [unit, secs] of [['day', 86400], ['hour', 3600], ['minute', 60]]) {
-    if (s >= secs) return rtf.format(-Math.floor(s / secs), unit);
-  }
-  return 'just now';
-};
+/* ===== "updated" stamp, live from github (last push to this site) ===== */
 fetch('https://api.github.com/users/mazentalsam/repos?sort=pushed&per_page=10')
   .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
   .then((repos) => {
@@ -246,16 +238,6 @@ fetch('https://api.github.com/users/mazentalsam/repos?sort=pushed&per_page=10')
       $('#nowStamp').textContent = 'updated ' + new Date(site.pushed_at)
         .toLocaleDateString('en-CA', { month: 'short', year: 'numeric', timeZone: 'America/Toronto' }).toLowerCase().replace('.', '');
     }
-    // skip the site itself, the profile readme, and the csjobs-bot listings repo (pushed hourly by automation)
-    const NOT_WORK = ['mazentalsam.com', 'mazentalsam', 'canada-cs-internships-new-grad'];
-    const work = repos.find((r) => !r.fork && !NOT_WORK.includes(r.name.toLowerCase()));
-    if (!work) return;
-    const card = $('#shipCard');
-    const link = $('.ncard__t a', card);
-    link.href = work.html_url;
-    link.textContent = work.name.toLowerCase();
-    // textContent, not innerHTML: repo descriptions are external data
-    $('.ncard__d', card).textContent = `${(work.description || 'pushing code').toLowerCase()} · last push ${timeAgo(work.pushed_at)}`;
   })
   .catch(() => { /* keep the static fallback text */ });
 
@@ -373,6 +355,12 @@ function playShot(p) { // laces through the ball
   burst(ctx, t, 'bandpass', 1400, 1.4, 0.05, 0.7);
   whoosh(ctx, t + 0.02, t + 0.25, 0.15 * p);
 }
+function playPost() { // ball off the woodwork: hollow "donk"
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime;
+  thump(ctx, t, 520, 360, 0.22, 0.7);
+  burst(ctx, t, 'bandpass', 2200, 3, 0.04, 0.4);
+}
 function playNet() { // ball hitting the net
   const ctx = audio(); if (!ctx) return;
   const t = ctx.currentTime;
@@ -405,14 +393,14 @@ function playDrop() { // ball hits the ground and dribbles to a stop
    level runs 0..1 and is full at `full` ms. keyboard enter/space counts as a tap. */
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
-function holdable(el, { onTap, onHold, onRelease, onCancel, min = 280, full = 1200 }) {
+function holdable(el, { onTap, onHold, onRelease, onCancel, min = 280, full = 1200, max = 1 }) {
   let t0 = 0, raf = 0;
-  const level = () => clamp((performance.now() - t0 - min) / (full - min), 0, 1);
+  const level = () => clamp((performance.now() - t0 - min) / (full - min), 0, max); // > 1 = overcharged
   const tick = () => {
     if (performance.now() - t0 > min) {
       const p = level();
-      el.classList.add('charging'); el.classList.toggle('full', p >= 1);
-      el.style.setProperty('--charge', p);
+      el.classList.add('charging'); el.classList.toggle('full', p >= 1); el.classList.toggle('over', p > 1.08);
+      el.style.setProperty('--charge', Math.min(p, 1));
       onHold?.(p);
     }
     raf = requestAnimationFrame(tick);
@@ -426,7 +414,7 @@ function holdable(el, { onTap, onHold, onRelease, onCancel, min = 280, full = 12
     cancelAnimationFrame(raf);
     const held = performance.now() - t0, p = level();
     t0 = 0;
-    el.classList.remove('charging', 'full'); el.style.setProperty('--charge', 0);
+    el.classList.remove('charging', 'full', 'over'); el.style.setProperty('--charge', 0);
     if (e.type !== 'pointerup') { if (held > min) onCancel?.(); return; } // dragged off / scrolled away
     if (held < min) onTap(); else onRelease(p);
   };
@@ -546,7 +534,7 @@ function juggle() {
   ball.vy = -520 - Math.random() * 60;
   ball.peak = -(ball.vy * ball.vy) / (2 * GRAVITY);
   // drift sideways: aim for a random landing spot inside the card, reached over one flight
-  const card = ball.el.parentElement, pad = 16, home = card.clientWidth * 0.82 - ball.el.offsetWidth; // css: right 18%
+  const card = ball.el.parentElement, pad = 16, home = card.clientWidth * 0.73 - ball.el.offsetWidth; // css: right 27%
   const left = card.clientWidth * 0.3; // stay right of the text column
   const target = -home + left + Math.random() * (card.clientWidth - left - ball.el.offsetWidth - pad);
   ball.vx = (target - ball.x) / ((2 * -ball.vy) / GRAVITY);
@@ -566,25 +554,45 @@ function shoot(p) {
   ball.el.classList.remove('ready');
   juggles = 0; jugglesEl.textContent = 0;
   goalEl.classList.add('show');
-  playShot(p);
+  playShot(Math.min(p, 1));
+  // power decides it: soft rolls short, held too long goes over, a narrow sweet spot finds the top corner
+  const outcome = p < 0.3 ? 'soft' : p > 1.08 ? 'over' : p >= 0.88 ? 'bins' : Math.random() < 0.15 ? 'post' : 'goal';
+  const inGoal = outcome === 'goal' || outcome === 'bins';
   // ball's resting spot on screen = where it is now minus its current offset
   const from = { x: ball.x, y: ball.y * 0.45 };
-  const b = ball.el.getBoundingClientRect(), g = goalEl.getBoundingClientRect();
+  const b = ball.el.getBoundingClientRect();
   const homeX = b.left + b.width / 2 - from.x, homeY = b.top + b.height / 2 - from.y;
-  const scored = p >= 0.35, bins = p >= 0.95;
-  const to = scored
-    ? { x: g.left + g.width * 0.5 - homeX, y: g.top + g.height * (bins ? 0.22 : 0.45 + Math.random() * 0.3) - homeY }
-    : { x: (g.left - homeX) * 0.5, y: 0 };
-  const peakY = Math.min(from.y, to.y) - (scored ? 30 + 50 * p : 6);
-  const at = (x, y, spin) => ({ transform: `translate(${x}px, ${y}px) rotate(${ball.rot + spin}deg)` });
-  const shot = ball.el.animate([at(from.x, from.y, 0), at((from.x + to.x) / 2, peakY, 400), at(to.x, to.y, 800)],
-    { duration: reduced ? 1 : scored ? 560 - 220 * p : 950, easing: 'cubic-bezier(.25,.6,.4,1)', fill: 'forwards' });
+  const net = $('.goal__net rect', goalEl).getBoundingClientRect(); // back of the goal
+  const posts = $('.goal__posts', goalEl).getBoundingClientRect(); // front frame
+  const pt = (x, y) => ({ x: x - homeX, y: y - homeY });
+  const rnd = (lo, hi) => lo + Math.random() * (hi - lo);
+  const height = clamp(0.85 - (p - 0.3) * 0.75 + rnd(-0.08, 0.08), 0.3, 0.85); // more power, higher in the net
+  const path = {
+    soft: [pt(posts.left - b.width * 0.9, homeY)], // rolls up and dies just short of the line
+    goal: [pt(rnd(net.left + net.width * 0.2, net.right - net.width * 0.2), net.top + net.height * height)],
+    bins: [pt(net.right - net.width * 0.16, net.top + net.height * 0.12)],
+    post: [pt(posts.left + 3, posts.top + posts.height * rnd(0.3, 0.7)), pt(posts.left - rnd(60, 110), homeY)],
+    over: [pt(posts.left + posts.width * 0.5, posts.top - 70), pt(posts.right + 40, posts.top - 160)],
+  }[outcome];
+  const at = (q, spin, s = 1, o = 1) => ({ transform: `translate(${q.x}px, ${q.y}px) rotate(${ball.rot + spin}deg) scale(${s})`, opacity: o });
+  const lift = inGoal ? 30 + 40 * Math.min(p, 1) : outcome === 'soft' ? 6 : 20;
+  const frames = [
+    at(from, 0),
+    at({ x: (from.x + path[0].x) / 2, y: Math.min(from.y, path[0].y) - lift }, 300, inGoal ? 0.9 : 1),
+    at(path[0], 600, inGoal ? 0.68 : outcome === 'over' ? 0.85 : 1), // shrinks going into the goal
+  ];
+  if (path[1]) frames.push(at(path[1], 900, outcome === 'over' ? 0.6 : 1, outcome === 'over' ? 0 : 1));
+  const dur = reduced ? 1 : outcome === 'soft' ? 950 : 600 - 200 * Math.min(p, 1) + (path[1] ? 450 : 0);
+  const shot = ball.el.animate(frames, { duration: dur, easing: 'cubic-bezier(.25,.6,.4,1)', fill: 'forwards' });
+  if (outcome === 'post') setTimeout(playPost, dur * (2 / 3));
   shot.onfinish = () => {
-    if (scored) {
-      restart(goalEl, 'scored'); playNet(); playCheer(bins ? 0.7 : 0.5);
+    if (inGoal) {
+      restart(goalEl, 'scored'); playNet(); playCheer(outcome === 'bins' ? 0.7 : 0.5);
       goalsEl.textContent = ++goals; store.set('mt-goals', goals);
-      shout(bins ? 'top bins!' : 'goal!');
-    } else shout('too soft');
+      shout(outcome === 'bins' ? 'top bins!' : 'goal!');
+    } else {
+      shout({ soft: 'too soft', post: 'off the post!', over: 'over the bar!' }[outcome]);
+    }
     setTimeout(() => { // reset: ball drops back in at its spot
       shot.cancel();
       Object.assign(ball, { x: 0, y: 0, vx: 0, vy: 0, rot: 0, shooting: false });
@@ -599,6 +607,7 @@ holdable($('#soccer'), {
   onHold: () => { if (!ball.shooting) goalEl.classList.add('show'); },
   onRelease: (p) => { if (!ball.shooting) shoot(p); },
   onCancel: () => { if (!ball.shooting) goalEl.classList.remove('show'); },
+  full: 1100, max: 1.6, // keep holding past full and it goes over the bar
 });
 function stepBall(dt) {
   if (!ball.airborne || ball.shooting) return;

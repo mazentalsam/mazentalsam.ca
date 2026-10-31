@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261031141205">
+  <link rel="stylesheet" href="style.css?v=20261031141741">
   <script type="importmap">
     {
       "imports": {
@@ -33,8 +33,8 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
-  <script src="assets/js/app.js?v=20261031141205" defer></script>
-  <script src="assets/js/terminal.js?v=20261031141205" defer></script>
+  <script src="assets/js/app.js?v=20261031141741" defer></script>
+  <script src="assets/js/terminal.js?v=20261031141741" defer></script>
 </head>
 <body class="is-loading">
   <a class="skip" href="#main">skip to content</a>
@@ -196,7 +196,7 @@
           </article>
           <article class="ncard reveal-fade" id="shipCard">
             <p class="ncard__k">shipping</p>
-            <h3 class="ncard__t"><a href="https://github.com/mazentalsam/csjobs.ca" target="_blank" rel="noopener">csjobs.ca</a></h3>
+            <h3 class="ncard__t"><a href="https://csjobs.ca" target="_blank" rel="noopener">csjobs.ca</a></h3>
             <p class="ncard__d">new scrapers every week. 640+ career sites, 13 ats platforms, 83% recall and climbing.</p>
           </article>
           <article class="ncard reveal-fade">
@@ -233,10 +233,25 @@
           <button class="ncard ncard--pitch ncard--game reveal-fade" id="soccer" type="button" aria-label="soccer: tap to juggle, hold to shoot at goal">
             <p class="ncard__k">playing</p>
             <h3 class="ncard__t">soccer</h3>
-            <span class="goal" id="goal" aria-hidden="true"></span>
             <span class="ball" id="ball" aria-hidden="true"></span>
+            <svg class="goal" id="goal" viewBox="0 0 120 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+              <defs>
+                <pattern id="mesh" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <path d="M0 0H7M0 0V7" stroke="rgba(255,255,255,.5)" stroke-width=".7" fill="none"/>
+                </pattern>
+              </defs>
+              <ellipse class="goal__shadow" cx="60" cy="99" rx="58" ry="3"/>
+              <g class="goal__net"><!-- back + sides recede toward the far frame, which is inset and higher -->
+                <polygon points="6,8 24,20 24,99 6,99" fill="url(#mesh)"/>
+                <polygon points="114,8 96,20 96,99 114,99" fill="url(#mesh)"/>
+                <polygon points="6,8 114,8 96,20 24,20" fill="url(#mesh)"/>
+                <rect x="24" y="20" width="72" height="79" fill="url(#mesh)"/>
+                <path class="goal__back" d="M24 99V20H96V99M6 8L24 20M114 8L96 20"/>
+              </g>
+              <path class="goal__posts" d="M6 99V8H114V99"/>
+            </svg>
             <p class="shout" id="shout" aria-live="polite"></p>
-            <p class="ncard__d">juggles: <span id="juggles">0</span> · best: <span id="best">0</span> · goals: <span id="goals">0</span> <span class="muted-on-dark">(tap to juggle · hold to shoot)</span></p>
+            <p class="ncard__d">juggles: <span id="juggles">0</span> · best: <span id="best">0</span> · goals: <span id="goals">0</span> <span class="muted-on-dark">(tap: juggle · hold: shoot)</span></p>
             <span class="charge" aria-hidden="true"></span>
           </button>
         </div>
