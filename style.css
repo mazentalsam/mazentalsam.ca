@@ -116,6 +116,9 @@ body.loaded .header { transform: none; }
   opacity: 0; transition: opacity .8s var(--ease) .3s;
 }
 body.menu-open .logo { opacity: 0; }
+/* hidden past the hero while scrolling down; slides back on scroll up */
+body.loaded .logo.away { opacity: 0; transform: translateY(-150%); pointer-events: none; transition: opacity .35s var(--ease), transform .45s var(--ease); }
+body.loaded .logo:not(.away) { transition: opacity .45s var(--ease), transform .45s var(--ease); }
 @media (max-width: 812px) { .logo { top: calc(var(--gap) + 5vw); } }
 .header__right { display: flex; gap: calc(var(--gap) * .6); align-items: center; }
 @media (max-width: 812px) {

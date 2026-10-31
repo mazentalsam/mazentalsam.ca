@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261030222853').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261030223458').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -497,6 +497,7 @@ fetch('https://github-contributions-api.jogruber.de/v4/mazentalsam?y=last')
 
 /* ===== One frame loop for everything scroll-linked ===== */
 const marquee = $('#marquee');
+const logo = $('.logo');
 const parallax = $$('[data-speed]');
 const photo = $('.about__photo img');
 const quoteSection = $('#quote');
@@ -514,6 +515,9 @@ function frame(now) {
   const vh = innerHeight;
 
   marquee.classList.toggle('hide', y > vh * 0.04);
+  // logo: away once past the hero and heading down; back on any real scroll up (small jitter ignored)
+  if (y < vh * 0.8 || vel < -4) logo.classList.remove('away');
+  else if (vel > 2) logo.classList.add('away');
   stepBall(dt);
 
   if (!reduced) {
