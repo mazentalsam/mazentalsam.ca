@@ -365,15 +365,20 @@ section { padding-top: calc(var(--gap) * 2); }
   backdrop-filter: blur(8px); transition: background .3s, color .3s, box-shadow .3s;
 }
 .plink:hover { background: var(--bone); color: var(--black); }
-.plink--live { background: var(--accent); color: var(--black); box-shadow: none; }
-.plink--live:hover { background: var(--bone); }
+/* each project card wears its own brand colour (--pc) for the live button + title */
+.pcard { --pc: var(--accent); --pc-ink: var(--black); }
+#p-csjobs { --pc: #dc343b; --pc-ink: #fff; }      /* csjobs.ca red */
+#p-ruhly { --pc: #f4f2ec; --pc-ink: #0a0a0a; }    /* ruhly: white on black */
+.plink--live { background: var(--pc); color: var(--pc-ink); box-shadow: none; }
+.plink--live:hover { background: var(--pc); color: var(--pc-ink); filter: brightness(1.15); }
+.pcard .brand { color: var(--pc); }
 .pcard__bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .2; filter: blur(18px) saturate(1.2); transform: scale(1.1); transition: opacity .6s var(--ease); }
 .pcard:hover .pcard__bg { opacity: .4; }
 .pcard__bg--autofill { background: radial-gradient(60% 80% at 75% 50%, #3d7bff 0%, #12306e 45%, #05080f 100%); opacity: .7; filter: none; }
 .pcard__inner { position: relative; height: 100%; align-items: center; padding: 0; }
 .pcard__info { grid-column: 2 / 8; display: flex; flex-direction: column; gap: var(--gap); }
 .pcard__info .h3 { transition: color .5s var(--ease); }
-.pcard:hover .pcard__info .h3 { color: var(--accent); }
+.pcard:hover .pcard__info .h3 { color: var(--pc); }
 .pcard__desc { font-size: clamp(14px, 1.15vw, 21px); line-height: 1.45; color: rgba(238,241,246,.75); max-width: 32em; }
 .pcard__media { grid-column: 9 / 16; aspect-ratio: 16 / 10; border-radius: calc(var(--gap) * .6); overflow: hidden; box-shadow: 0 2vw 4vw rgba(0,0,0,.45); transition: transform .8s var(--ease); }
 .pcard__media img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
@@ -626,3 +631,4 @@ section { padding-top: calc(var(--gap) * 2); }
   .quote { height: auto; }
   .quote__sticky { position: static; height: auto; padding: calc(var(--gap) * 6) 0; }
 }
+.brand-mark { display: inline-block; height: .78em; width: auto; margin: 0 .22em -.04em 0; }

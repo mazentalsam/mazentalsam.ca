@@ -217,6 +217,77 @@ const store = {
   set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } },
 };
 
+/* ===== Sound fx: synthesized with web audio, only ever played on a tap ===== */
+let actx = null;
+let noise = null;
+function audio() {
+  if (!actx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    // limiter on the master bus so stacked hits never clip
+    actx.master = actx.createDynamicsCompressor();
+    actx.master.threshold.value = -10;
+    const out = actx.createGain(); out.gain.value = 1.6;
+    actx.master.connect(out).connect(actx.destination);
+    noise = actx.createBuffer(1, actx.sampleRate, actx.sampleRate);
+    const d = noise.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  if (actx.state === 'suspended') actx.resume().catch(() => {});
+  return actx;
+}
+// pitched body: sine that drops in pitch, like a pad or ball resonating
+function thump(ctx, t, from, to, dur, vol) {
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.frequency.setValueAtTime(from, t);
+  o.frequency.exponentialRampToValueAtTime(to, t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(ctx.master);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+// filtered noise burst: the leather slap / surface contact
+function burst(ctx, t, type, freq, q, dur, vol) {
+  const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+  src.buffer = noise;
+  f.type = type; f.frequency.value = freq; f.Q.value = q;
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  src.connect(f).connect(g).connect(ctx.master);
+  src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.02);
+}
+const jitter = (v, amt = 0.08) => v * (1 + (Math.random() * 2 - 1) * amt);
+
+// per strike: body pitch (lower = heavier), slap brightness, overall power
+const STRIKE_SFX = {
+  jab: [150, 2600, 0.55], cross: [125, 2200, 0.75], hook: [115, 2000, 0.8], elbow: [170, 3400, 0.7],
+  teep: [85, 1000, 0.85], knee: [75, 1200, 0.95], roundhouse: [62, 1500, 1], 'switch kick': [58, 1600, 1],
+};
+function playStrike(name) {
+  const ctx = audio(); if (!ctx) return;
+  const [body, slap, p] = STRIKE_SFX[name];
+  const t = ctx.currentTime;
+  burst(ctx, t, 'bandpass', jitter(slap), 0.9, 0.07, 0.9 * p);    // leather crack on the pad
+  thump(ctx, t, jitter(body * 2.2), body * 0.55, 0.2, 1.1 * p);  // pad body
+  burst(ctx, t, 'lowpass', 500, 0.7, 0.14, 0.45 * p);             // air whoomph
+  if (body < 90) thump(ctx, t + 0.012, body * 1.2, body * 0.5, 0.28, 0.6 * p); // kicks land deeper
+}
+function playTouch() { // foot on ball: hollow bonk + a little leather tick
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime;
+  thump(ctx, t, jitter(360, 0.06), 190, 0.13, 0.7);
+  burst(ctx, t, 'bandpass', 1800, 2, 0.035, 0.35);
+}
+function playDrop() { // ball hits the ground and dribbles to a stop
+  const ctx = audio(); if (!ctx) return;
+  const t = ctx.currentTime;
+  [[0, 0.55], [0.22, 0.3], [0.36, 0.16], [0.45, 0.08]].forEach(([dt, v]) => {
+    thump(ctx, t + dt, 170, 85, 0.12, v);
+    burst(ctx, t + dt, 'lowpass', 900, 0.7, 0.05, v * 0.5);
+  });
+}
+
 /* ===== Muay thai card: tap to throw strikes ===== */
 const STRIKES = ['jab', 'cross', 'teep', 'roundhouse', 'elbow', 'knee', 'hook', 'switch kick'];
 const strikeEl = $('#strike');
@@ -224,7 +295,9 @@ const strikeCount = $('#strikeCount');
 let strikes = store.get('mt-strikes');
 strikeCount.textContent = strikes;
 $('#muaythai').addEventListener('click', (e) => {
-  strikeEl.textContent = STRIKES[Math.floor(Math.random() * STRIKES.length)] + '!';
+  const strike = STRIKES[Math.floor(Math.random() * STRIKES.length)];
+  playStrike(strike);
+  strikeEl.textContent = strike + '!';
   strikeEl.classList.remove('hit'); void strikeEl.offsetWidth; strikeEl.classList.add('hit');
   e.currentTarget.classList.remove('shake'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('shake');
   strikeCount.textContent = ++strikes;
@@ -240,6 +313,7 @@ let best = store.get('mt-juggle-best');
 bestEl.textContent = best;
 $('#soccer').addEventListener('click', () => {
   if (ball.y > -40 || !ball.airborne) {
+    playTouch();
     ball.vy = -620 - Math.random() * 120;
     ball.airborne = true;
     jugglesEl.textContent = ++juggles;
@@ -253,6 +327,7 @@ function stepBall(dt) {
   ball.rot += ball.vy * dt * -0.6;
   if (ball.y >= 0) {
     ball.y = 0; ball.vy = 0; ball.airborne = false;
+    playDrop();
     juggles = 0; jugglesEl.textContent = 0; // dropped it
   }
   ball.el.style.setProperty('--by', `${ball.y * 0.12}px`);
