@@ -1,10 +1,10 @@
-# mazentalsam.com
+# mazentalsam.ca
 
 hey, i'm mazen. this is my personal site, built from scratch with no templates and no frameworks.
 
 i'm a cs student at wilfrid laurier ('28), the founder of [csjobs.ca](https://csjobs.ca), and an incoming software engineer co-op at td. i mostly build backends: schemas, scrapers, queues, and the apis that hold a product together. when i'm not at the keyboard, i'm doing muay thai or playing soccer.
 
-**live at [mazentalsam.com](https://mazentalsam.com)**
+**live at [mazentalsam.ca](https://mazentalsam.ca)**
 
 ## what's on it
 
