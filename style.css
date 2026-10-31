@@ -481,6 +481,8 @@ section { padding-top: calc(var(--gap) * 2); }
   transform: translateY(var(--by, 0px)) rotate(var(--br, 0deg));
 }
 .ball::after { content: ""; position: absolute; inset: 30%; background: #222; clip-path: polygon(50% 0, 100% 38%, 82% 100%, 18% 100%, 0 38%); }
+/* glows while a tap will count, so the rhythm is learnable */
+.ball.ready { box-shadow: inset -.4vw -.4vw .8vw rgba(0,0,0,.25), 0 0 0 3px rgba(255,255,255,.85), 0 0 1.6vw rgba(255,255,255,.6); }
 @media (max-width: 812px) {
   .now__head .section-title, .now__stamp { grid-column: 1 / 7; justify-self: start; padding: 0 0 var(--gap); }
   .now__head { padding: 0 var(--m); }

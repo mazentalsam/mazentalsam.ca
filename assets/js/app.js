@@ -127,7 +127,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=202610302216').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261030221830').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -305,32 +305,37 @@ $('#muaythai').addEventListener('click', (e) => {
 });
 
 /* ===== Soccer card: keep the ball up ===== */
-const ball = { el: $('#ball'), y: 0, vy: 0, rot: 0, airborne: false };
+const ball = { el: $('#ball'), y: 0, vy: 0, rot: 0, peak: 0, airborne: false };
 const jugglesEl = $('#juggles');
 const bestEl = $('#best');
+const GRAVITY = 1100;
 let juggles = 0;
 let best = store.get('mt-juggle-best');
 bestEl.textContent = best;
+// one touch per arc: you can kick it once it's falling through the lower 75% of its height
+const canTouch = () => !ball.airborne || (ball.vy > 0 && ball.y > ball.peak * 0.75);
 $('#soccer').addEventListener('click', () => {
-  if (ball.y > -40 || !ball.airborne) {
-    playTouch();
-    ball.vy = -620 - Math.random() * 120;
-    ball.airborne = true;
-    jugglesEl.textContent = ++juggles;
-    if (juggles > best) { best = juggles; bestEl.textContent = best; store.set('mt-juggle-best', best); }
-  }
+  if (!canTouch()) return;
+  playTouch();
+  ball.vy = -560 - Math.random() * 80;
+  ball.peak = -(ball.vy * ball.vy) / (2 * GRAVITY);
+  ball.airborne = true;
+  jugglesEl.textContent = ++juggles;
+  if (juggles > best) { best = juggles; bestEl.textContent = best; store.set('mt-juggle-best', best); }
 });
 function stepBall(dt) {
   if (!ball.airborne) return;
-  ball.vy += 1500 * dt;
+  ball.vy += GRAVITY * dt;
   ball.y += ball.vy * dt;
   ball.rot += ball.vy * dt * -0.6;
+  ball.el.classList.toggle('ready', canTouch());
   if (ball.y >= 0) {
     ball.y = 0; ball.vy = 0; ball.airborne = false;
+    ball.el.classList.remove('ready');
     playDrop();
     juggles = 0; jugglesEl.textContent = 0; // dropped it
   }
-  ball.el.style.setProperty('--by', `${ball.y * 0.12}px`);
+  ball.el.style.setProperty('--by', `${ball.y * 0.45}px`); // ~70px of visible travel
   ball.el.style.setProperty('--br', `${ball.rot}deg`);
 }
 
