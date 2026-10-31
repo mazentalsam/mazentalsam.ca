@@ -208,6 +208,9 @@ section { padding-top: calc(var(--gap) * 2); }
 .btn--primary:hover .btn__arrow--down { transform: translateY(.2em); }
 @keyframes glow { 0% { box-shadow: 0 0 0 0 rgba(61,123,255,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(61,123,255,0); } }
 .hero__lede a { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: .18em; text-decoration-thickness: 2px; }
+/* csjobs.ca in its own red (brightened a touch to read on black) */
+.hero__lede a[href*="csjobs.ca"] { color: #ef4b52; text-decoration-color: #ef4b52; font-weight: 600; transition: color .3s; }
+.hero__lede a[href*="csjobs.ca"]:hover { color: #ff6b70; }
 .hero__lede strong { font-weight: 700; }
 /* clip-path instead of radius+overflow: avoids a dark AA fringe where paper tiles meet the canvas layer */
 .hero__window { flex: 1 1 auto; min-height: 0; margin: 0 var(--m); border-radius: 0; overflow: visible; clip-path: inset(0 round var(--gap)); background: #e4e9f2; }
