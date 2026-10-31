@@ -4,6 +4,20 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isMobile = () => innerWidth <= 812;
 
+/* ===== Date-aware content =====
+   elements with data-from / data-until (yyyy-mm-dd, inclusive, toronto time) only exist inside that window.
+   preview any day with ?today=2027-02-10 */
+const todayParam = new URLSearchParams(location.search).get('today');
+const today = /^\d{4}-\d{2}-\d{2}$/.test(todayParam || '')
+  ? todayParam
+  : new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto' }).format(new Date()); // en-CA = yyyy-mm-dd
+$$('[data-from], [data-until]').forEach((el) => {
+  if ((el.dataset.from && today < el.dataset.from) || (el.dataset.until && today > el.dataset.until)) el.remove();
+});
+const TD = { start: '2027-01-04', end: '2027-04-23' };
+const tdPhase = today < TD.start ? 'before' : today <= TD.end ? 'during' : 'after';
+const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+
 history.scrollRestoration = 'manual';
 scrollTo(0, 0);
 
@@ -127,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261030221830').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261030222853').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -206,10 +220,58 @@ const tickClock = () => { clock.textContent = fmt.format(new Date()); };
 tickClock(); setInterval(tickClock, 15000);
 $('#year').textContent = new Date().getFullYear();
 
-/* ===== TD countdown (to jan 1; flips once the term has started) ===== */
-const tdDays = Math.ceil((new Date('2027-01-01T00:00:00-05:00') - Date.now()) / 864e5);
-if (tdDays > 0) $('#tdDays').textContent = tdDays;
-else { $('#tdDays').textContent = 'now'; $('.ncard__count small').textContent = 'on the job'; }
+/* ===== TD counter: days to go before the term, day N during it (card is removed after) ===== */
+if (tdPhase === 'before') {
+  $('#tdDays').textContent = daysBetween(today, TD.start);
+  $('#tdDaysLabel').textContent = daysBetween(today, TD.start) === 1 ? 'day to go' : 'days to go';
+} else if (tdPhase === 'during') {
+  $('#tdDays').textContent = `day ${daysBetween(TD.start, today) + 1}`;
+  $('#tdDaysLabel').textContent = `of ${daysBetween(TD.start, TD.end) + 1} at td`;
+}
+
+/* ===== "shipping" card + "updated" stamp, live from github ===== */
+const timeAgo = (iso) => {
+  const s = (Date.now() - Date.parse(iso)) / 1000;
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  for (const [unit, secs] of [['day', 86400], ['hour', 3600], ['minute', 60]]) {
+    if (s >= secs) return rtf.format(-Math.floor(s / secs), unit);
+  }
+  return 'just now';
+};
+fetch('https://api.github.com/users/mazentalsam/repos?sort=pushed&per_page=10')
+  .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+  .then((repos) => {
+    const site = repos.find((r) => r.name === 'mazentalsam.com');
+    if (site) {
+      $('#nowStamp').textContent = 'updated ' + new Date(site.pushed_at)
+        .toLocaleDateString('en-CA', { month: 'short', year: 'numeric', timeZone: 'America/Toronto' }).toLowerCase().replace('.', '');
+    }
+    // skip the site itself, the profile readme, and the csjobs-bot listings repo (pushed hourly by automation)
+    const NOT_WORK = ['mazentalsam.com', 'mazentalsam', 'canada-cs-internships-new-grad'];
+    const work = repos.find((r) => !r.fork && !NOT_WORK.includes(r.name.toLowerCase()));
+    if (!work) return;
+    const card = $('#shipCard');
+    const link = $('.ncard__t a', card);
+    link.href = work.html_url;
+    link.textContent = work.name.toLowerCase();
+    // textContent, not innerHTML: repo descriptions are external data
+    $('.ncard__d', card).textContent = `${(work.description || 'pushing code').toLowerCase()} · last push ${timeAgo(work.pushed_at)}`;
+  })
+  .catch(() => { /* keep the static fallback text */ });
+
+/* ===== live csjobs.ca numbers =====
+   off until csjobs.ca serves a public stats endpoint (its /api is bot-protected today).
+   set to e.g. 'https://csjobs.ca/api/public/stats' returning { "students": 512, "career_sites": 655 } */
+const CSJOBS_STATS_URL = null;
+if (CSJOBS_STATS_URL) {
+  fetch(CSJOBS_STATS_URL)
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((s) => {
+      if (Number.isFinite(s.students)) $('#statStudents').dataset.count = s.students;
+      if (Number.isFinite(s.career_sites)) $('#statSites').dataset.count = s.career_sites;
+    })
+    .catch(() => { /* keep the static numbers */ });
+}
 
 /* ===== localStorage helpers (can throw in private mode) ===== */
 const store = {
@@ -294,9 +356,39 @@ const strikeEl = $('#strike');
 const strikeCount = $('#strikeCount');
 let strikes = store.get('mt-strikes');
 strikeCount.textContent = strikes;
+// path each strike takes into the bag (svg 200x200, bag's front face at x≈112); ends at the impact point
+const STRIKE_PATHS = {
+  jab: 'M10 72 L110 72', cross: 'M0 84 L110 80', hook: 'M70 14 Q132 8 112 74', elbow: 'M76 36 L112 78',
+  teep: 'M0 134 L110 128', knee: 'M66 198 Q90 160 112 118',
+  roundhouse: 'M0 194 Q36 88 112 102', 'switch kick': 'M12 198 Q58 78 112 96',
+};
+const trail = $('#trail'), bag = $('#bag'), impact = $('#impact'), impactAt = $('#impactAt'), comboEl = $('#combo');
+let combo = 0, lastStrikeAt = 0;
+function showStrike(name) {
+  if (reduced) return;
+  const power = STRIKE_SFX[name][2];
+  trail.setAttribute('d', STRIKE_PATHS[name]);
+  const len = trail.getTotalLength(), end = trail.getPointAtLength(len);
+  trail.style.strokeDasharray = len;
+  trail.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: 0.25 }, { strokeDashoffset: 0, opacity: 1, offset: 0.6 }, { strokeDashoffset: 0, opacity: 0 }],
+    { duration: 620, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+  impactAt.setAttribute('transform', `translate(${end.x} ${end.y})`);
+  impact.animate([{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(.2)', opacity: 1, offset: 0.25 }, { transform: `scale(${1 + power * 0.6})`, opacity: 0 }],
+    { duration: 420, easing: 'ease-out', fill: 'forwards' });
+  // hit from the left pushes the bag right, then it swings back and settles
+  const a = -power * 16;
+  bag.animate([0, a, -a * 0.55, a * 0.3, -a * 0.12, 0].map((deg) => ({ transform: `rotate(${deg}deg)` })),
+    { duration: 700 + power * 500, delay: 110, easing: 'ease-in-out' });
+}
 $('#muaythai').addEventListener('click', (e) => {
   const strike = STRIKES[Math.floor(Math.random() * STRIKES.length)];
   playStrike(strike);
+  showStrike(strike);
+  const now = performance.now();
+  combo = now - lastStrikeAt < 900 ? combo + 1 : 1;
+  lastStrikeAt = now;
+  comboEl.textContent = combo > 1 ? `${combo}x combo` : '';
+  comboEl.classList.remove('pop'); void comboEl.offsetWidth; if (combo > 1) comboEl.classList.add('pop');
   strikeEl.textContent = strike + '!';
   strikeEl.classList.remove('hit'); void strikeEl.offsetWidth; strikeEl.classList.add('hit');
   e.currentTarget.classList.remove('shake'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('shake');
@@ -305,20 +397,25 @@ $('#muaythai').addEventListener('click', (e) => {
 });
 
 /* ===== Soccer card: keep the ball up ===== */
-const ball = { el: $('#ball'), y: 0, vy: 0, rot: 0, peak: 0, airborne: false };
+const ball = { el: $('#ball'), x: 0, vx: 0, y: 0, vy: 0, rot: 0, peak: 0, airborne: false };
 const jugglesEl = $('#juggles');
 const bestEl = $('#best');
-const GRAVITY = 1100;
+const GRAVITY = 980;
 let juggles = 0;
 let best = store.get('mt-juggle-best');
 bestEl.textContent = best;
-// one touch per arc: you can kick it once it's falling through the lower 75% of its height
-const canTouch = () => !ball.airborne || (ball.vy > 0 && ball.y > ball.peak * 0.75);
+// one touch per arc: any time it's falling through the lower 90% of its height
+const canTouch = () => !ball.airborne || (ball.vy > 0 && ball.y > ball.peak * 0.9);
 $('#soccer').addEventListener('click', () => {
   if (!canTouch()) return;
   playTouch();
-  ball.vy = -560 - Math.random() * 80;
+  ball.vy = -520 - Math.random() * 60;
   ball.peak = -(ball.vy * ball.vy) / (2 * GRAVITY);
+  // drift sideways: aim for a random landing spot inside the card, reached over one flight
+  const card = ball.el.parentElement, pad = 16, home = card.clientWidth * 0.82 - ball.el.offsetWidth; // css: right 18%
+  const left = card.clientWidth * 0.3; // stay right of the text column
+  const target = -home + left + Math.random() * (card.clientWidth - left - ball.el.offsetWidth - pad);
+  ball.vx = (target - ball.x) / ((2 * -ball.vy) / GRAVITY);
   ball.airborne = true;
   jugglesEl.textContent = ++juggles;
   if (juggles > best) { best = juggles; bestEl.textContent = best; store.set('mt-juggle-best', best); }
@@ -327,15 +424,17 @@ function stepBall(dt) {
   if (!ball.airborne) return;
   ball.vy += GRAVITY * dt;
   ball.y += ball.vy * dt;
-  ball.rot += ball.vy * dt * -0.6;
+  ball.x += ball.vx * dt;
+  ball.rot += (ball.vy * -0.6 + ball.vx * 2) * dt; // spins the way it drifts
   ball.el.classList.toggle('ready', canTouch());
   if (ball.y >= 0) {
-    ball.y = 0; ball.vy = 0; ball.airborne = false;
+    ball.y = 0; ball.vy = 0; ball.vx = 0; ball.airborne = false;
     ball.el.classList.remove('ready');
     playDrop();
     juggles = 0; jugglesEl.textContent = 0; // dropped it
   }
   ball.el.style.setProperty('--by', `${ball.y * 0.45}px`); // ~70px of visible travel
+  ball.el.style.setProperty('--jx', `${ball.x}px`);
   ball.el.style.setProperty('--br', `${ball.rot}deg`);
 }
 

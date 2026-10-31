@@ -24,15 +24,20 @@ psst — there are a few hidden ones.`,
   whoami: () => `mazen talsam
 cs @ wilfrid laurier, class of '28
 backend-leaning full-stack engineer
-founder of csjobs.ca · incoming swe co-op @ td
+founder of csjobs.ca · ${{ before: 'incoming swe co-op @ td', during: 'swe co-op @ td (right now)', after: 'ex-swe co-op @ td' }[tdPhase]}
 off the keyboard: muay thai + soccer`,
-  now: () => `building   homie.ai — tech lead, 2 pods, 9 engineers
-shipping   csjobs.ca — new scrapers every week
-next       td global technology solutions, jan 2027
-training   muay thai
-playing    soccer
-learning   cloud infrastructure (aws cloud club)`,
-  experience: () => `2027  td                      swe co-op (incoming)
+  // tdPhase / today come from app.js (date-aware content)
+  now: () => [
+    today <= '2026-12-31' && 'building   homie.ai — tech lead, 2 pods, 9 engineers',
+    'shipping   csjobs.ca — new scrapers every week',
+    { before: 'next       td global technology solutions, jan 4 – apr 23 2027',
+      during: 'working    td global technology solutions, until apr 23',
+      after: 'next       open to summer & fall 2027' }[tdPhase],
+    'training   muay thai',
+    'playing    soccer',
+    'learning   cloud infrastructure (aws cloud club)',
+  ].filter(Boolean).join('\n'),
+  experience: () => `2027  td                      swe co-op${tdPhase === 'before' ? ' (incoming)' : tdPhase === 'during' ? ' (current)' : ''}
 2026  pm accelerator/homie.ai tech lead & full-stack
 2026  csjobs.ca               founder
 2026  vosyn                   swe intern, ai & cloud

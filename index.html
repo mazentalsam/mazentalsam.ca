@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mazen talsam — software engineer</title>
-  <meta name="description" content="mazen talsam — cs at laurier, founder of csjobs.ca, incoming swe co-op at td. i build backends that don't break.">
+  <meta name="description" content="mazen talsam — cs at laurier, founder of csjobs.ca, software engineer co-op at td (jan–apr 2027). i build backends that don't break.">
   <meta property="og:title" content="mazen talsam — software engineer">
-  <meta property="og:description" content="founder of csjobs.ca · incoming swe co-op at td · backends that don't break.">
+  <meta property="og:description" content="founder of csjobs.ca · swe co-op at td, jan–apr 2027 · backends that don't break.">
   <meta property="og:image" content="https://mazentalsam.com/assets/images/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261030221830">
+  <link rel="stylesheet" href="style.css?v=20261030222853">
   <script type="importmap">
     {
       "imports": {
@@ -33,8 +33,8 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
-  <script src="assets/js/app.js?v=20261030221830" defer></script>
-  <script src="assets/js/terminal.js?v=20261030221830" defer></script>
+  <script src="assets/js/app.js?v=20261030222853" defer></script>
+  <script src="assets/js/terminal.js?v=20261030222853" defer></script>
 </head>
 <body class="is-loading">
   <a class="skip" href="#main">skip to content</a>
@@ -109,9 +109,9 @@
       <!-- ===== Hero ===== -->
       <section class="hero">
         <div class="hero__top grid">
-          <a class="announce" href="#experience" data-scroll>
+          <a class="announce" href="#experience" data-scroll data-until="2027-04-23">
             <img src="assets/images/logos/td.svg" alt="" class="announce__logo">
-            <span><b>incoming swe co-op @ td</b> · jan – apr 2027</span>
+            <span data-until="2027-01-03"><b>incoming swe co-op @ td</b> · jan – apr 2027</span><span data-from="2027-01-04" data-until="2027-04-23"><b>swe co-op @ td</b> · on the job now</span>
             <span class="announce__arrow" aria-hidden="true">→</span>
           </a>
           <h1 class="hero__title">
@@ -120,7 +120,7 @@
           </h1>
           <p class="hero__lede h6">
             cs at laurier. founder of <a href="https://csjobs.ca" target="_blank" rel="noopener">csjobs.ca</a> (500+ students use it).
-            incoming swe co-op at <strong>td</strong>. i like fast pipelines, clean schemas, and kicking pads after.
+            <span data-until="2027-01-03">incoming swe co-op at <strong>td</strong>.</span><span data-from="2027-01-04" data-until="2027-04-23">currently a swe co-op at <strong>td</strong>.</span><span data-from="2027-04-24">most recently a swe co-op at <strong>td</strong>.</span> i like fast pipelines, clean schemas, and kicking pads after.
           </p>
           <div class="hero__cta">
             <a class="btn btn--primary" href="assets/Mazen-Talsam-Resume.pdf" download="Mazen-Talsam-Resume.pdf">
@@ -161,7 +161,7 @@
           </figure>
           <div class="about__body">
             <p class="h6 reveal-fade">i study computer science at wilfrid laurier (class of '28). most of my time goes into the parts users never see: schemas, scrapers, queues, and the apis holding a product together.</p>
-            <p class="h6 reveal-fade">right now i'm tech-leading two pods at homie.ai, running csjobs.ca, and starting at td in january. off the keyboard it's muay thai and soccer.</p>
+            <p class="h6 reveal-fade"><span data-until="2027-01-03">right now i'm running csjobs.ca<span data-until="2026-12-31"> and tech-leading two pods at homie.ai</span>. i start at td on january 4.</span><span data-from="2027-01-04" data-until="2027-04-23">right now i'm a software engineer co-op at td, and still running csjobs.ca on the side.</span><span data-from="2027-04-24">right now i'm running csjobs.ca and looking for my next role (summer &amp; fall 2027).</span> off the keyboard it's muay thai and soccer.</p>
             <ul class="stack reveal-fade" aria-label="core stack">
               <li>python</li><li>fastapi</li><li>flask</li><li>django</li><li>postgresql</li><li>sqlalchemy</li><li>typescript</li><li>react</li><li>supabase</li><li>docker</li>
             </ul>
@@ -177,32 +177,54 @@
       <section class="now" id="now">
         <div class="now__head grid">
           <h2 class="section-title reveal"><span class="line"><span>right now</span></span></h2>
-          <p class="now__stamp muted">updated oct 2026 · mississauga / waterloo</p>
+          <p class="now__stamp muted"><span id="nowStamp">updated oct 2026</span> · mississauga / waterloo</p>
         </div>
         <div class="now__grid grid">
-          <article class="ncard ncard--td reveal-fade">
+          <article class="ncard ncard--td reveal-fade" data-until="2027-04-23">
             <img src="assets/images/logos/td.svg" alt="td bank logo" class="ncard__logo">
             <div class="ncard__main">
-              <p class="ncard__k">next up · the big one</p>
+              <p class="ncard__k" data-until="2027-01-03">next up · the big one</p><p class="ncard__k" data-from="2027-01-04" data-until="2027-04-23">right now · the big one</p>
               <h3 class="ncard__t">software engineer co&#8209;op at td</h3>
               <p class="ncard__d">global technology solutions · toronto · jan – apr 2027</p>
             </div>
-            <p class="ncard__count"><span id="tdDays">--</span><small>days till january</small></p>
+            <p class="ncard__count"><span id="tdDays">--</span><small id="tdDaysLabel">days to go</small></p>
           </article>
-          <article class="ncard ncard--dark reveal-fade">
+          <article class="ncard ncard--dark reveal-fade" data-until="2026-12-31">
             <p class="ncard__k">building</p>
             <h3 class="ncard__t">homie.ai</h3>
             <p class="ncard__d">tech lead for 2 of 4 pods (9 engineers). i own the app ↔ llm agent contract and the postgres rls.</p>
           </article>
-          <article class="ncard reveal-fade">
+          <article class="ncard reveal-fade" id="shipCard">
             <p class="ncard__k">shipping</p>
-            <h3 class="ncard__t">csjobs.ca</h3>
+            <h3 class="ncard__t"><a href="https://github.com/mazentalsam/csjobs.ca" target="_blank" rel="noopener">csjobs.ca</a></h3>
             <p class="ncard__d">new scrapers every week. 640+ career sites, 13 ats platforms, 83% recall and climbing.</p>
+          </article>
+          <article class="ncard reveal-fade">
+            <p class="ncard__k">learning</p>
+            <h3 class="ncard__t">cloud infrastructure</h3>
+            <p class="ncard__d">aws cloud club at laurier. going deeper on queues, caching, and not paying for idle servers.</p>
           </article>
           <button class="ncard ncard--accent ncard--game reveal-fade" id="muaythai" type="button" aria-label="muay thai: tap to throw a strike">
             <p class="ncard__k">training</p>
             <h3 class="ncard__t">muay thai</h3>
             <p class="strike" id="strike" aria-live="polite">tap to throw</p>
+            <p class="combo" id="combo" aria-hidden="true"></p>
+            <svg class="bag" viewBox="0 0 200 200" aria-hidden="true">
+              <path class="bag__trail" id="trail" d="M0 0"/>
+              <g class="bag__swing" id="bag">
+                <line class="bag__chain" x1="140" y1="0" x2="140" y2="28"/>
+                <rect class="bag__body" x="112" y="28" width="56" height="150" rx="22"/>
+                <rect class="bag__band" x="112" y="56" width="56" height="9"/>
+                <rect class="bag__band" x="112" y="142" width="56" height="9"/>
+                <text class="bag__text" x="140" y="110">mt</text>
+              </g>
+              <g id="impactAt"><!-- positioned here; the inner group only scales/fades -->
+                <g class="bag__impact" id="impact">
+                  <circle r="13"/>
+                  <path d="M0 -24V-17M0 24V17M-24 0H-17M24 0H17M-17 -17L-12 -12M17 17L12 12M-17 17L-12 12M17 -17L12 -12"/>
+                </g>
+              </g>
+            </svg>
             <p class="ncard__d"><span id="strikeCount">0</span> strikes thrown on this site</p>
           </button>
           <button class="ncard ncard--pitch ncard--game reveal-fade" id="soccer" type="button" aria-label="soccer: tap to juggle the ball">
@@ -211,11 +233,6 @@
             <span class="ball" id="ball" aria-hidden="true"></span>
             <p class="ncard__d">juggles: <span id="juggles">0</span> · best: <span id="best">0</span> <span class="muted-on-dark">(tap when it glows)</span></p>
           </button>
-          <article class="ncard reveal-fade">
-            <p class="ncard__k">learning</p>
-            <h3 class="ncard__t">cloud infrastructure</h3>
-            <p class="ncard__d">aws cloud club at laurier. going deeper on queues, caching, and not paying for idle servers.</p>
-          </article>
         </div>
       </section>
 
@@ -230,11 +247,11 @@
             <p class="badge__name">mazen talsam</p><p class="badge__role">swe co-op</p><div class="badge__code"></div>
           </div></div></div>
           <div class="job__text" data-speed="0.12">
-            <p class="h6 muted"><span class="tag-incoming">incoming</span> jan 2027 – apr 2027</p>
+            <p class="h6 muted"><span class="tag-incoming" data-until="2027-01-03">incoming</span><span class="tag-incoming" data-from="2027-01-04" data-until="2027-04-23">current</span> jan 2027 – apr 2027</p>
             <h3 class="h4 bold">td — global technology solutions</h3>
             <p class="job__role">software engineer intern / co-op</p>
             <p class="job__loc">toronto, ontario</p>
-            <p class="diamond">joining td's global technology solutions org for the winter term.</p>
+            <p class="diamond" data-until="2027-01-03">joining td's global technology solutions org for the winter term.</p><p class="diamond" data-from="2027-01-04">software engineer co-op on td's global technology solutions team, winter 2027.</p>
           </div>
         </article>
 
@@ -378,8 +395,8 @@
       <section class="ship" id="shiplog">
         <h2 class="section-title reveal"><span class="line"><span>ship log</span></span></h2>
         <div class="ship__stats grid">
-          <div class="stat reveal-fade"><p class="stat__n"><span data-count="500">0</span>+</p><p class="stat__l">students on csjobs.ca</p></div>
-          <div class="stat reveal-fade"><p class="stat__n"><span data-count="640">0</span>+</p><p class="stat__l">career sites scraped</p></div>
+          <div class="stat reveal-fade"><p class="stat__n"><span data-count="500" id="statStudents">0</span>+</p><p class="stat__l">students on csjobs.ca</p></div>
+          <div class="stat reveal-fade"><p class="stat__n"><span data-count="640" id="statSites">0</span>+</p><p class="stat__l">career sites scraped</p></div>
           <div class="stat reveal-fade"><p class="stat__n"><span data-count="45">0</span>s → <span data-count="8">0</span>s</p><p class="stat__l">llm resume tailoring</p></div>
           <div class="stat reveal-fade"><p class="stat__n"><span data-count="1224" id="contribTotal">0</span></p><p class="stat__l">github contributions, last year</p></div>
         </div>
@@ -423,7 +440,7 @@
         <p class="footer__title">status</p>
         <p><span class="muted-light">current time:</span> <span id="clock">--:--</span> et</p>
         <p><span class="muted-light">availability:</span> <span class="dot"></span>open to summer &amp; fall 2027</p>
-        <p class="muted-light">incoming swe co-op at td · tech lead at homie.ai</p>
+        <p class="muted-light" data-until="2027-01-03">incoming swe co-op at td<span data-until="2026-12-31"> · tech lead at homie.ai</span></p><p class="muted-light" data-from="2027-01-04" data-until="2027-04-23">swe co-op at td · building csjobs.ca</p><p class="muted-light" data-from="2027-04-24">building csjobs.ca · ex-swe co-op at td</p>
       </div>
     </div>
     <div class="grid footer__bottom">
