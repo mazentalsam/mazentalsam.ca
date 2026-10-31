@@ -67,6 +67,9 @@ ul { list-style: none; }
 
 .diamond { position: relative; padding-left: 1.8em; }
 .diamond::before { content: "◆"; position: absolute; left: 0; top: 0; color: var(--accent); font-style: normal; font-size: .9em; line-height: 1.55; }
+.job .diamond::before { color: var(--jb, var(--accent)); }
+.edu { font-size: clamp(13px, .95vw, 17px); line-height: 1.55; color: var(--muted); }
+.edu b { color: var(--ink); font-weight: 600; }
 
 /* ===== Grain ===== */
 .grain {
@@ -313,7 +316,8 @@ section { padding-top: calc(var(--gap) * 2); }
 .badge:active { cursor: grabbing; }
 .badge__strap {
   width: 1.4em; height: 11em; position: relative;
-  background: repeating-linear-gradient(180deg, var(--accent) 0 .6em, #2a63e0 .6em 1.2em);
+  /* lanyard in the company's colour (--jc on the .job) */
+  background: repeating-linear-gradient(180deg, var(--jc, var(--accent)) 0 .6em, color-mix(in srgb, var(--jc, var(--accent)) 72%, #000) .6em 1.2em);
 }
 .badge__strap::after { content: ""; position: absolute; left: 50%; bottom: -1.2em; width: 2.4em; height: 1.6em; transform: translateX(-50%); border-radius: .4em; background: linear-gradient(#cfcfcf, #8d8d8d); box-shadow: inset 0 -.2em .3em rgba(0,0,0,.3); }
 .badge__card {

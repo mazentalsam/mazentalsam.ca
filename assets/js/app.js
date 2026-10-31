@@ -141,7 +141,7 @@ if (!reduced) setInterval(() => {
 }, 1300);
 
 /* ===== 3D hero scene (lazy; failure leaves the dark window + tiles) ===== */
-import('./scene.js?v=20261031142314').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
+import('./scene.js?v=20261031142547').then((m) => m.initScene($('#scene'), { reduced })).catch((err) => console.warn('3D scene disabled:', err));
 
 /* ===== Quote: split into words with random 3D start states ===== */
 const quoteText = $('#quoteText');
@@ -379,34 +379,39 @@ function playCheer(vol = 0.5) { // crowd roar: overlapping bands of noise swelli
     src.connect(bp).connect(g).connect(ctx.master); src.start(t, Math.random()); src.stop(t + 2);
   });
 }
-// a crowd singing one note: many slightly-off voices through a vowel filter ("o" is darker, "lé" brighter)
-function crowdNote(ctx, t, freq, dur, vol, bright) {
-  const vowel = ctx.createBiquadFilter(), g = ctx.createGain();
-  vowel.type = 'bandpass'; vowel.frequency.value = bright ? 1500 : 600; vowel.Q.value = 1.2;
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.05);
-  g.gain.setValueAtTime(vol, t + dur * 0.75); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  vowel.connect(g).connect(ctx.master);
-  for (let i = 0; i < 12; i++) {
-    const o = ctx.createOscillator();
-    o.type = 'sawtooth';
-    o.frequency.value = freq * (1 + (Math.random() * 2 - 1) * 0.025) * (i % 3 === 0 ? 2 : 1); // some sing an octave up
-    o.connect(vowel); o.start(t + Math.random() * 0.04); o.stop(t + dur + 0.02);
-  }
-}
-function crowdClap(ctx, t, vol) { // a few hundred hands, slightly out of sync
-  for (let i = 0; i < 4; i++) burst(ctx, t + Math.random() * 0.02, 'bandpass', 1200 + Math.random() * 900, 0.8, 0.06, vol);
-}
-let chantUntil = 0;
-function playChant(vol = 0.1) { // "olé, olé olé olé" + claps
+// goal: a stadium screaming. lots of "aaah" voices (pitch + vibrato vary per person) over a wall of crowd noise
+function playRoar(vol = 1, dur = 3) {
   const ctx = audio(); if (!ctx) return;
-  if (ctx.currentTime < chantUntil) return; // one chant at a time
-  const t0 = ctx.currentTime + 0.7, beat = 0.3; // starts as the first roar peaks
-  const E = 165, G = 196, A = 220;
-  // [beat offset, length in beats, pitch, bright vowel]
-  const tune = [[0, 0.8, E, 0], [1, 1.8, G, 1], [3, 0.8, E, 0], [4, 0.8, G, 1], [5, 0.8, E, 0], [6, 0.8, G, 1], [7, 0.8, A, 0], [8, 2.4, G, 1]];
-  tune.forEach(([at, len, f, bright]) => crowdNote(ctx, t0 + at * beat, f, len * beat, vol, bright));
-  [11, 12, 13, 13.5, 14].forEach((at) => crowdClap(ctx, t0 + at * beat, 0.35)); // clap, clap, clap-clap-clap
-  chantUntil = t0 + 14.5 * beat;
+  const t = ctx.currentTime, end = t + dur;
+  const env = ctx.createGain(); // whole crowd: fast swell, hold, long fade
+  env.gain.setValueAtTime(0.0001, t);
+  env.gain.exponentialRampToValueAtTime(vol, t + 0.25);
+  env.gain.setValueAtTime(vol, t + dur * 0.55);
+  env.gain.exponentialRampToValueAtTime(0.0001, end);
+  env.connect(ctx.master);
+  // "ah" vowel = energy around 800 and 1200 hz
+  const voices = ctx.createGain(); voices.gain.value = 0.045;
+  [[800, 2], [1200, 2.5]].forEach(([f, q]) => {
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+    voices.connect(bp).connect(env);
+  });
+  for (let i = 0; i < 28; i++) {
+    const o = ctx.createOscillator(), lfo = ctx.createOscillator(), depth = ctx.createGain();
+    const f = 220 + Math.random() * 380; // low shouts to high screams
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f * 0.9, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.3); // voices rise into the scream
+    lfo.frequency.value = 4 + Math.random() * 3; depth.gain.value = f * 0.03; // each person's own waver
+    lfo.connect(depth).connect(o.frequency);
+    o.connect(voices);
+    const st = t + Math.random() * 0.15;
+    o.start(st); lfo.start(st); o.stop(end); lfo.stop(end);
+  }
+  [[500, 0.7, 0.5], [1100, 0.9, 0.45], [2400, 1, 0.3]].forEach(([f, q, v]) => { // crowd noise underneath
+    const src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = noise; src.loop = true;
+    bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q; g.gain.value = v;
+    src.connect(bp).connect(g).connect(env); src.start(t, Math.random()); src.stop(end);
+  });
 }
 function playGroan(vol = 0.5) { // crowd "ohhh": many voices sliding down in pitch through an "oh" vowel, plus crowd noise
   const ctx = audio(); if (!ctx) return;
@@ -636,8 +641,7 @@ function shoot(p) {
   if (outcome === 'post') setTimeout(playPost, dur * (2 / 3));
   shot.onfinish = () => {
     if (inGoal) {
-      restart(goalEl, 'scored'); playNet(); playCheer(outcome === 'bins' ? 0.42 : 0.32);
-      playChant(outcome === 'bins' ? 0.12 : 0.09);
+      restart(goalEl, 'scored'); playNet(); playRoar(outcome === 'bins' ? 0.9 : 0.75, outcome === 'bins' ? 3.5 : 2.8);
       goalsEl.textContent = ++goals; store.set('mt-goals', goals);
       shout(outcome === 'bins' ? 'top bins!' : 'goal!');
     } else {

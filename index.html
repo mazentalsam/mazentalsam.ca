@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261031142314">
+  <link rel="stylesheet" href="style.css?v=20261031142547">
   <script type="importmap">
     {
       "imports": {
@@ -33,8 +33,8 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
-  <script src="assets/js/app.js?v=20261031142314" defer></script>
-  <script src="assets/js/terminal.js?v=20261031142314" defer></script>
+  <script src="assets/js/app.js?v=20261031142547" defer></script>
+  <script src="assets/js/terminal.js?v=20261031142547" defer></script>
 </head>
 <body class="is-loading">
   <a class="skip" href="#main">skip to content</a>
@@ -162,8 +162,10 @@
           <div class="about__body">
             <p class="h6 reveal-fade">i study computer science at wilfrid laurier (class of '28). most of my time goes into the parts users never see: schemas, scrapers, queues, and the apis holding a product together.</p>
             <p class="h6 reveal-fade"><span data-until="2027-01-03">right now i'm running csjobs.ca<span data-until="2026-12-31"> and tech-leading two pods at homie.ai</span>. i start at td on january 4.</span><span data-from="2027-01-04" data-until="2027-04-23">right now i'm a software engineer co-op at td, and still running csjobs.ca on the side.</span><span data-from="2027-04-24">right now i'm running csjobs.ca and looking for my next role (summer &amp; fall 2027).</span> off the keyboard it's muay thai and soccer.</p>
+            <p class="edu reveal-fade"><b>wilfrid laurier university</b> · b.a. computer science · expected 2028<br>
+              <span>coursework: data structures &amp; algorithms (python, c), object-oriented programming (java), relational databases / sql · aws cloud club, corporate member</span></p>
             <ul class="stack reveal-fade" aria-label="core stack">
-              <li>python</li><li>fastapi</li><li>flask</li><li>django</li><li>postgresql</li><li>sqlalchemy</li><li>typescript</li><li>react</li><li>supabase</li><li>docker</li>
+              <li>python</li><li>java</li><li>typescript</li><li>c</li><li>sql</li><li>fastapi</li><li>flask</li><li>django</li><li>node.js</li><li>react</li><li>next.js</li><li>postgresql</li><li>sqlalchemy</li><li>supabase</li><li>docker</li><li>linux</li>
             </ul>
             <a class="btn" href="#now" data-scroll>
               <span class="btn__ball"></span><span class="btn__label">what i'm up to</span>
@@ -261,7 +263,7 @@
       <section class="exp" id="experience">
         <h2 class="section-title reveal"><span class="line"><span>experience</span></span></h2>
 
-        <article class="job job--featured">
+        <article class="job job--featured" style="--jc:#00a651;--jb:#1fd17a">
           <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
             <div class="badge__top" style="--c:#00a651"><img src="assets/images/logos/td.svg" alt="" class="badge__logo"><span>td bank</span></div>
             <img src="assets/images/mazen-face.jpg" alt="" class="badge__photo">
@@ -276,7 +278,7 @@
           </div>
         </article>
 
-        <article class="job job--flip">
+        <article class="job job--flip" style="--jc:#ff5a36;--jb:#ff7a5c">
           <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
             <div class="badge__top" style="--c:#1b1b1b"><span>homie.ai</span></div>
             <span class="badge__mark badge__mark--light badge__mark--small"><img src="assets/images/logos/pma_full.png" alt=""></span>
@@ -293,7 +295,7 @@
           </div>
         </article>
 
-        <article class="job">
+        <article class="job" style="--jc:#dc343b;--jb:#f0585e">
           <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
             <div class="badge__top" style="--c:#d7263d"><span>csjobs.ca</span></div>
             <span class="badge__mark badge__mark--light"><img src="assets/images/logos/csjobs_ca.png" alt=""></span>
@@ -307,10 +309,12 @@
             <p class="diamond">built and launched a searchable job board used by 500+ students, with paying subscribers, on python/flask.</p>
             <p class="diamond">cut llm resume tailoring from 45s to 8s at 1.5¢ per run after benchmarking 6 models on an eval set.</p>
             <p class="diamond">killed intermittent 502s hitting 1 in 4 requests by moving scraping out of the gunicorn worker.</p>
+            <p class="diamond">made resume parsing hallucination-proof: the llm returns only line numbers, validated against the source.</p>
+            <p class="diamond">engineered 40+ python scrapers across 640+ career sites on 13 ats platforms, lifting recall from 74% to 83%.</p>
           </div>
         </article>
 
-        <article class="job job--flip">
+        <article class="job job--flip" style="--jc:#6c4cff;--jb:#9a85ff">
           <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
             <div class="badge__top" style="--c:#05070d"><span>vosyn</span></div>
             <span class="badge__mark"><img src="assets/images/logos/vosyn_ai.png" alt=""></span>
@@ -321,13 +325,14 @@
             <h3 class="h4 bold">vosyn</h3>
             <p class="job__role">software developer intern (ai &amp; cloud systems)</p>
             <p class="job__loc">etobicoke, ontario</p>
+            <p class="diamond">tested the vimeo api for download feasibility, then built the database layer that merged to production.</p>
             <p class="diamond">built the db foundation for a fastapi microservice with 5 sqlalchemy models so every ingestion request stayed traceable.</p>
             <p class="diamond">provisioned the schema via alembic and scoped db sessions so any environment could be rebuilt.</p>
             <p class="diamond">prototyped a vimeo download chain (scrape, api, hls/dash) with per-tier fallback so no dead source failed the job.</p>
           </div>
         </article>
 
-        <article class="job">
+        <article class="job" style="--jc:#4f2683;--jb:#a98bea">
           <div class="job__window window"><div class="badge" data-badge><div class="badge__strap"></div><div class="badge__card">
             <div class="badge__top" style="--c:#2b3240"><span>laurier cs</span></div>
             <span class="badge__mark"><img src="assets/images/logos/lcs.png" alt=""></span>
@@ -338,7 +343,8 @@
             <h3 class="h4 bold">laurier computing society</h3>
             <p class="job__role">software developer &amp; first-year rep</p>
             <p class="job__loc">waterloo, ontario</p>
-            <p class="diamond">shipped full-stack features in python and javascript, replacing manual updates for 3,000+ members.</p>
+            <p class="diamond">served on the club's executive team as first-year representative while shipping code for its website.</p>
+            <p class="diamond">shipped full-stack features in python, javascript and html/css, replacing manual updates for 3,000+ members.</p>
             <p class="diamond">added django and flask rest endpoints on postgresql so club data rendered live.</p>
           </div>
         </article>
@@ -362,7 +368,7 @@
               <div class="pcard__info">
                 <p class="h6">2026 — present · live</p>
                 <h3 class="h3"><span class="brand">cs</span>jobs.ca</h3>
-                <p class="pcard__desc">ai-powered job board for canadian cs students. flask, gunicorn, 40+ scrapers, llm resume tailoring.</p>
+                <p class="pcard__desc">ai-powered job board for canadian cs students. 500+ users with paying subscribers, 40+ scrapers across 640+ career sites, llm resume tailoring in 8s. python, flask, gunicorn.</p>
                 <div class="pcard__links"><a class="plink plink--live" href="https://csjobs.ca" target="_blank" rel="noopener">live site ↗</a><a class="plink" href="https://github.com/mazentalsam/csjobs.ca" target="_blank" rel="noopener">github ↗</a></div>
               </div>
               <div class="pcard__media"><img src="assets/images/csjobs.jpg" alt="csjobs.ca on desktop and mobile: every cs co-op in canada, one board" loading="lazy"></div>
@@ -375,7 +381,7 @@
               <div class="pcard__info">
                 <p class="h6">2026 · co-founder &amp; lead engineer · ruhly.app</p>
                 <h3 class="h3"><img src="assets/images/logos/ruhly-mark.png" alt="" class="brand-mark">ruhly</h3>
-                <p class="pcard__desc">one passage, every fajr. daily quran and hadith matched to your mood, in 8 languages with rtl. react, typescript, supabase.</p>
+                <p class="pcard__desc">one passage, every fajr. quran and hadith matched to your mood in 8 languages, rtl arabic and urdu included. free-tier caps enforced with postgres triggers and row locking; web push built from scratch for 5 reminder types. react, typescript, supabase.</p>
                 <div class="pcard__links"><a class="plink plink--live" href="https://ruhly.app" target="_blank" rel="noopener">live site ↗</a><a class="plink" href="https://github.com/mazentalsam/ruhly-app" target="_blank" rel="noopener">github ↗</a></div>
               </div>
               <div class="pcard__media">
@@ -390,7 +396,7 @@
               <div class="pcard__info">
                 <p class="h6">2026 · chrome extension</p>
                 <h3 class="h3">autofill</h3>
-                <p class="pcard__desc">manifest v3 extension that fills applications on 17 hiring platforms, tested by a playwright harness against live postings.</p>
+                <p class="pcard__desc">manifest v3 extension autofilling applications on 17 hiring platforms through a 1,200-line field map. a playwright harness against live postings caught 4 bugs the jsdom suite missed.</p>
                 <div class="pcard__links"><a class="plink" href="https://github.com/mazentalsam/csjobs-autofill" target="_blank" rel="noopener">github ↗</a></div>
               </div>
               <div class="pcard__media cover cover--form" aria-hidden="true">
